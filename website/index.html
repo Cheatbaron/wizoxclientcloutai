@@ -55,35 +55,34 @@
   .nav-cta { display: flex; gap: 8px; }
 
   /* Hero */
-  .hero { position: relative; text-align: center; padding-block: 120px 128px; overflow: hidden; }
+  .hero { position: relative; text-align: center; padding-block: 128px 112px; overflow: hidden; }
   .hero::before { content: ""; position: absolute; left: 50%; top: -320px; width: 1000px; height: 640px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(255,51,71,.16), transparent); pointer-events: none; }
   .hero .wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
-  .hero .logo { width: 132px; margin-bottom: 40px; }
+  .hero .logo { width: 96px; margin-bottom: 36px; }
   .pill { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; font: 400 13px var(--mono); color: var(--muted); margin-bottom: 28px; }
-  .pill i { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
+  .pill i { display: none;  width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
   .hero h1 { font-size: clamp(44px, 8vw, 84px); line-height: 1; letter-spacing: -.05em; font-weight: 600; }
   .hero h1 span { color: var(--red); }
   .hero p { max-width: 460px; margin: 24px 0 36px; font-size: 18px; color: var(--muted); }
   .cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
-  section { padding-block: 112px; border-top: 1px solid var(--line); }
+  section { padding-block: 96px; }
   .head { display: grid; gap: 14px; align-content: start; margin-bottom: 56px; max-width: 560px; }
   .head h2 { font-size: clamp(32px, 4.4vw, 44px); line-height: 1.08; letter-spacing: -.04em; }
   .head p { margin: 0; color: var(--muted); font-size: 17px; }
   .center { text-align: center; margin-inline: auto; justify-items: center; }
 
   /* Setup: a real three-step sequence */
-  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-  .step { padding: 32px 28px 36px; display: grid; gap: 10px; align-content: start; }
-  .step + .step { border-left: 1px solid var(--line); }
-  .step .n { font: 500 13px var(--mono); color: var(--dim); margin-bottom: 18px; }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .step { padding-top: 20px; border-top: 1px solid var(--line-2); display: grid; gap: 8px; align-content: start; }
+  .step .n { font: 500 13px var(--mono); color: var(--dim); margin-bottom: 10px; }
   .step h3 { font-size: 18px; letter-spacing: -.02em; }
   .step p { margin: 0; color: var(--muted); font-size: 15px; }
   .step code { font: 400 13px var(--mono); color: var(--text); background: var(--surface-2); padding: 2px 6px; border-radius: 5px; }
 
   /* Pricing */
   .plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 760px; margin: 0 auto; }
-  .plan { position: relative; display: flex; flex-direction: column; gap: 28px; padding: 32px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); }
+  .plan { position: relative; display: flex; flex-direction: column; gap: 28px; padding: 32px; border: 1px solid var(--line); border-radius: 20px; background: rgba(17,17,19,.7); }
   .plan.best { border-color: rgba(255,51,71,.45); background: linear-gradient(180deg, rgba(255,51,71,.07), transparent 55%), var(--surface); }
   .plan-top { display: flex; justify-content: space-between; align-items: center; }
   .plan h3 { font-size: 17px; font-weight: 500; color: var(--muted); }
@@ -94,7 +93,7 @@
   .plan li { display: flex; gap: 12px; align-items: center; }
   .plan li::before { content: ""; flex: none; width: 16px; height: 16px; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' stroke='%23fafafa' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat; opacity: .8; }
   .plan .btn { width: 100%; }
-  .fine { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; font-size: 13px; color: var(--dim); }
+  .fine { display: flex; justify-content: center; gap: 8px 24px; flex-wrap: wrap; margin-top: 28px; font-size: 13px; color: var(--dim); }
 
   /* Discord */
   section.slim { padding-block: 64px; }
@@ -103,8 +102,8 @@
   .discord p { margin: 6px 0 0; color: var(--muted); }
 
   /* FAQ */
-  .faq { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: 64px; }
-  .faq .head { margin: 0; }
+  .faq { max-width: 680px; }
+  .faq .head { margin-bottom: 40px; }
   details { border-bottom: 1px solid var(--line); }
   details:first-child { border-top: 1px solid var(--line); }
   summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px 0; cursor: pointer; list-style: none; font-weight: 500; }
@@ -127,10 +126,8 @@
   @media (max-width: 820px) {
     .links { display: none; }
     nav .wrap { justify-content: space-between; }
-    .steps { grid-template-columns: minmax(0, 1fr); }
-    .step + .step { border-left: 0; border-top: 1px solid var(--line); }
+    .steps { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .plans { grid-template-columns: minmax(0, 1fr); max-width: 440px; }
-    .faq { grid-template-columns: minmax(0, 1fr); gap: 40px; }
     section { padding-block: 80px; }
     .hero { padding-block: 80px 96px; }
   }
@@ -165,7 +162,7 @@
 <header class="hero" id="top">
   <div class="wrap">
     <div class="logo" role="img" aria-label="Wizox"></div>
-    <div class="pill"><i></i>Minecraft 1.21 · Fabric</div>
+    <div class="pill">Minecraft 1.21 · Fabric</div>
     <h1>Built to destroy <span>Pedro.</span></h1>
     <p>Combat, render and visual modules in one fast client. Open it with Right Shift and play.</p>
     <div class="cta">
@@ -177,7 +174,7 @@
 
 <section id="setup">
   <div class="wrap">
-    <div class="head">
+    <div class="head center">
       <div class="label">Setup</div>
       <h2>In game in two minutes.</h2>
       <p>You need Minecraft 1.21 with Fabric Loader and Fabric API.</p>
@@ -215,19 +212,12 @@
   </div>
 </section>
 
-<section class="slim">
-  <div class="wrap discord">
-    <div><h2>Join the Discord.</h2><p>Updates, configs and support from the Wizox team.</p></div>
-    <a class="btn" href="#" data-link="discord">Join Discord ↗</a>
-  </div>
-</section>
-
 <section id="faq">
   <div class="wrap faq">
-    <div class="head">
+    <div class="head center">
       <div class="label">FAQ</div>
       <h2>Questions.</h2>
-      <p>Something else? Open a ticket in our Discord.</p>
+      <p>Something else? <a href="#" data-link="discord" style="color:var(--text);text-decoration:underline;text-underline-offset:3px">Ask in our Discord</a>.</p>
     </div>
     <div>
       <details><summary>How do I get my key?</summary><p>Right after you pay, your key and the download link show up on screen. Copy it and keep it somewhere safe.</p></details>
