@@ -5,6 +5,10 @@ compatibility_date = "2025-01-01"
 # Lets the worker import admin.html as a string.
 rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = true }]
 
+# Serves the site on your domain. Delete the old tunnel's DNS record for
+# license.seekboosting.lol in Cloudflare first, or the deploy will fail.
+routes = [{ pattern = "license.seekboosting.lol", custom_domain = true }]
+
 [vars]
 # Your main website. Stripe sends buyers back here after paying.
 SITE_URL = "https://seekboosting.lol"
@@ -14,7 +18,3 @@ SITE_URL = "https://seekboosting.lol"
 [[kv_namespaces]]
 binding = "KEYS"
 id = "REPLACE_WITH_YOUR_KV_ID"
-
-# Serves the site on your domain. Delete the old tunnel's DNS record for
-# license.seekboosting.lol in Cloudflare first, or the deploy will fail.
-routes = [{ pattern = "license.seekboosting.lol", custom_domain = true }]
