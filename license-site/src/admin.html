@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wizox Licenses</title>
+<style>
+  :root {
+    --bg: #0b0d12; --panel: #141821; --line: #232a37; --text: #e6e9ef; --muted: #8a93a6;
+    --accent: #7c5cff; --accent-2: #5b8cff; --ok: #2fbf71; --bad: #ff5c6c; --warn: #f5b942;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 16px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .brand { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  .brand span { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  h2 { margin: 0 0 14px; font-size: 15px; font-weight: 600; }
+  label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+  input, select { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font: inherit; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+  button:hover { filter: brightness(1.1); }
+  button.ghost { background: transparent; border: 1px solid var(--line); color: var(--text); font-weight: 500; padding: 5px 10px; font-size: 12px; }
+  button.ghost.danger { color: var(--bad); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 22px; }
+  .stat small { color: var(--muted); }
+  .toolbar { display: flex; gap: 12px; margin-bottom: 12px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  td.key { font-family: ui-monospace, Consolas, monospace; cursor: pointer; }
+  td.key:hover { color: var(--accent-2); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .pill.active { background: rgba(47,191,113,.15); color: var(--ok); }
+  .pill.unused { background: rgba(91,140,255,.15); color: var(--accent-2); }
+  .pill.expired { background: rgba(245,185,66,.15); color: var(--warn); }
+  .pill.revoked { background: rgba(255,92,108,.15); color: var(--bad); }
+  .actions { display: flex; gap: 6px; }
+  .muted { color: var(--muted); }
+  #login { max-width: 360px; margin: 12vh auto; }
+  #login button { width: 100%; margin-top: 12px; }
+  #created { display: none; margin-top: 14px; }
+  #created textarea { width: 100%; min-height: 90px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: ui-monospace, Consolas, monospace; }
+  .err { color: var(--bad); margin-top: 8px; min-height: 20px; }
+  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="login" class="card">
+  <div class="brand" style="margin-bottom:16px"><span>WIZOX</span> Licenses</div>
+  <label for="pw">Admin password</label>
+  <input id="pw" type="password" autocomplete="current-password">
+  <button id="loginBtn">Log in</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <header>
+    <div class="brand"><span>WIZOX</span> Licenses</div>
+    <button class="ghost" id="logout">Log out</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b id="sTotal">0</b><small>Total keys</small></div>
+    <div class="stat"><b id="sActive">0</b><small>Active</small></div>
+    <div class="stat"><b id="sUnused">0</b><small>Unused</small></div>
+    <div class="stat"><b id="sDead">0</b><small>Expired / revoked</small></div>
+  </div>
+
+  <div class="card">
+    <h2>Generate keys</h2>
+    <div class="grid">
+      <div><label>Amount</label><input id="count" type="number" min="1" max="100" value="1"></div>
+      <div><label>Duration</label>
+        <select id="days">
+          <option value="1">1 day</option>
+          <option value="7">7 days</option>
+          <option value="30" selected>30 days</option>
+          <option value="90">90 days</option>
+          <option value="365">1 year</option>
+          <option value="0">Lifetime</option>
+        </select>
+      </div>
+      <div><label>HWID lock</label>
+        <select id="hwid"><option value="1" selected>On</option><option value="0">Off</option></select>
+      </div>
+      <div><label>Note (optional)</label><input id="note" maxlength="100" placeholder="e.g. buyer name"></div>
+      <div><button id="gen" style="width:100%">Generate</button></div>
+    </div>
+    <div id="created">
+      <label>New keys (click to copy all)</label>
+      <textarea id="createdKeys" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input id="search" placeholder="Search key, note or HWID">
+      <button class="ghost" id="refresh">Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Key</th><th>Status</th><th>Note</th><th>Duration</th><th>Expires</th><th>HWID</th><th>Uses</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="muted" id="empty" hidden>No keys yet.</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+let token = "";
+try { token = sessionStorage.getItem("wizox_admin") || ""; } catch {}
+let keys = [];
+const $ = (id) => document.getElementById(id);
+
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: { "content-type": "application/json", authorization: "Bearer " + token },
+  });
+  if (res.status === 401) { logout(); throw new Error("unauthorized"); }
+  return res.json();
+}
+
+function status(k) {
+  if (k.revoked) return "revoked";
+  if (k.expiresAt && Date.now() > k.expiresAt) return "expired";
+  if (!k.activatedAt) return "unused";
+  return "active";
+}
+
+const fmt = (ts) => ts ? new Date(ts).toLocaleString() : "—";
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function render() {
+  const q = $("search").value.trim().toLowerCase();
+  const list = keys.filter((k) => !q || [k.key, k.note, k.hwid].some((v) => (v || "").toLowerCase().includes(q)));
+  const counts = { active: 0, unused: 0, dead: 0 };
+  keys.forEach((k) => { const s = status(k); if (s === "active") counts.active++; else if (s === "unused") counts.unused++; else counts.dead++; });
+  $("sTotal").textContent = keys.length; $("sActive").textContent = counts.active;
+  $("sUnused").textContent = counts.unused; $("sDead").textContent = counts.dead;
+  $("empty").hidden = keys.length > 0;
+
+  $("rows").innerHTML = list.map((k) => {
+    const s = status(k);
+    return `<tr>
+      <td class="key" data-copy="${esc(k.key)}" title="Click to copy">${esc(k.key)}</td>
+      <td><span class="pill ${s}">${s}</span></td>
+      <td>${esc(k.note) || '<span class="muted">—</span>'}</td>
+      <td>${k.days ? k.days + "d" : "Lifetime"}</td>
+      <td>${k.expiresAt ? fmt(k.expiresAt) : (k.days ? '<span class="muted">on first use</span>' : "Never")}</td>
+      <td>${k.hwidLock ? (k.hwid ? `<span title="${esc(k.hwid)}">${esc(k.hwid.slice(0, 12))}…</span>` : '<span class="muted">not bound</span>') : '<span class="muted">off</span>'}</td>
+      <td>${k.uses || 0}</td>
+      <td><div class="actions">
+        ${k.hwid ? `<button class="ghost" data-act="reset-hwid" data-key="${esc(k.key)}">Reset HWID</button>` : ""}
+        <button class="ghost" data-act="${k.revoked ? "unrevoke" : "revoke"}" data-key="${esc(k.key)}">${k.revoked ? "Unrevoke" : "Revoke"}</button>
+        <button class="ghost danger" data-act="delete" data-key="${esc(k.key)}">Delete</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+
+async function load() {
+  const data = await api("/api/admin/keys");
+  keys = data.keys || [];
+  render();
+}
+
+async function login() {
+  token = $("pw").value;
+  const res = await fetch("/api/admin/keys", { headers: { authorization: "Bearer " + token } });
+  if (!res.ok) { $("loginErr").textContent = "Wrong password"; token = ""; return; }
+  try { sessionStorage.setItem("wizox_admin", token); } catch {}
+  $("login").hidden = true; $("app").hidden = false;
+  keys = (await res.json()).keys || []; render();
+}
+
+function logout() {
+  token = ""; try { sessionStorage.removeItem("wizox_admin"); } catch {}
+  $("app").hidden = true; $("login").hidden = false; $("pw").value = "";
+}
+
+$("loginBtn").onclick = login;
+$("pw").onkeydown = (e) => { if (e.key === "Enter") login(); };
+$("logout").onclick = logout;
+$("refresh").onclick = () => load().then(() => toast("Refreshed"));
+$("search").oninput = render;
+
+$("gen").onclick = async () => {
+  const data = await api("/api/admin/keys", {
+    method: "POST",
+    body: JSON.stringify({ count: $("count").value, days: $("days").value, hwidLock: $("hwid").value === "1", note: $("note").value }),
+  });
+  const list = (data.keys || []).map((k) => k.key).join("\n");
+  $("createdKeys").value = list; $("created").style.display = "block";
+  await load(); toast(`Generated ${data.keys.length} key(s)`);
+};
+
+$("createdKeys").onclick = (e) => { navigator.clipboard.writeText(e.target.value); toast("Copied"); };
+
+$("rows").onclick = async (e) => {
+  const copy = e.target.closest("[data-copy]");
+  if (copy) { navigator.clipboard.writeText(copy.dataset.copy); toast("Copied"); return; }
+  const btn = e.target.closest("[data-act]"); if (!btn) return;
+  const { act, key } = btn.dataset;
+  if (act === "delete") {
+    if (!confirm("Delete " + key + "?")) return;
+    await api("/api/admin/keys/" + key, { method: "DELETE" });
+  } else {
+    await api("/api/admin/keys/" + key + "/" + act, { method: "POST" });
+  }
+  await load();
+};
+
+if (token) {
+  fetch("/api/admin/keys", { headers: { authorization: "Bearer " + token } })
+    .then((r) => r.ok ? r.json() : Promise.reject())
+    .then((d) => { $("login").hidden = true; $("app").hidden = false; keys = d.keys || []; render(); })
+    .catch(logout);
+}
+</script>
+</body>
+</html>

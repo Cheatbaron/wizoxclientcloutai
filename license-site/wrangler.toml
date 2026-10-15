@@ -1,0 +1,16 @@
+name = "wizox-license"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+# Lets the worker import admin.html as a string.
+rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = true }]
+
+# Replace the id below with the one printed by:
+#   npx wrangler kv namespace create KEYS
+[[kv_namespaces]]
+binding = "KEYS"
+id = "REPLACE_WITH_YOUR_KV_ID"
+
+# Serves the site on your domain. Delete the old tunnel's DNS record for
+# license.seekboosting.lol in Cloudflare first, or the deploy will fail.
+routes = [{ pattern = "license.seekboosting.lol", custom_domain = true }]
