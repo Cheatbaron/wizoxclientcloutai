@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wizox Client</title>
+<meta name="description" content="Wizox Client — a fast, clean Minecraft client.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c5cff'/><text x='16' y='22' font-size='17' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>W</text></svg>">
+<style>
+  :root {
+    --bg: #0b0d12; --bg-2: #10131a; --panel: #141821; --line: #232a37;
+    --text: #e6e9ef; --muted: #8a93a6; --accent: #7c5cff; --accent-2: #5b8cff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  .grad { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(11,13,18,.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: .5px; }
+  .links { display: flex; gap: 28px; align-items: center; font-size: 15px; color: var(--muted); }
+  .links a:hover { color: var(--text); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font-weight: 600; border: 1px solid transparent; transition: transform .15s, filter .15s; cursor: pointer; }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+  .btn.primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 8px 30px -8px rgba(124,92,255,.6); }
+  .btn.ghost { border-color: var(--line); background: var(--panel); }
+  .btn.small { padding: 8px 16px; font-size: 14px; }
+
+  .hero { position: relative; padding: 110px 0 90px; text-align: center; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; inset: -40% 10% auto; height: 600px; background: radial-gradient(closest-side, rgba(124,92,255,.28), transparent); pointer-events: none; }
+  .badge { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--muted); background: var(--panel); margin-bottom: 22px; }
+  .hero h1 { position: relative; font-size: clamp(40px, 7vw, 72px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -1.5px; }
+  .hero p { position: relative; font-size: 19px; color: var(--muted); max-width: 600px; margin: 0 auto 34px; }
+  .cta { position: relative; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .stats { display: flex; justify-content: center; gap: 56px; margin-top: 64px; flex-wrap: wrap; }
+  .stats b { display: block; font-size: 28px; }
+  .stats small { color: var(--muted); font-size: 14px; }
+
+  section { padding: 90px 0; }
+  section.alt { background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .head { text-align: center; margin-bottom: 50px; }
+  .head h2 { font-size: clamp(30px, 4vw, 40px); margin: 0 0 10px; letter-spacing: -.5px; }
+  .head p { color: var(--muted); margin: 0; }
+
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .feature { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 26px; transition: border-color .2s; }
+  .feature:hover { border-color: rgba(124,92,255,.5); }
+  .icon { width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; background: rgba(124,92,255,.15); color: var(--accent); margin-bottom: 16px; }
+  .icon svg { width: 22px; height: 22px; }
+  .feature h3 { margin: 0 0 6px; font-size: 18px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; align-items: stretch; }
+  .plan { position: relative; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 30px; }
+  .plan.best { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 20px 50px -20px rgba(124,92,255,.5); }
+  .plan .tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+  .plan h3 { margin: 0 0 4px; font-size: 18px; }
+  .plan .price { font-size: 44px; font-weight: 800; margin: 12px 0 2px; }
+  .plan .price span { font-size: 16px; color: var(--muted); font-weight: 500; }
+  .plan ul { list-style: none; padding: 0; margin: 20px 0 28px; color: var(--muted); font-size: 15px; flex: 1; }
+  .plan li { padding: 6px 0 6px 26px; position: relative; }
+  .plan li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 14px; border-radius: 50%; background: rgba(124,92,255,.2) url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 8.5l2.5 2.5L12 5.5' stroke='%237c5cff' stroke-width='2' fill='none' stroke-linecap='round'/></svg>") center/12px no-repeat; }
+  .plan .btn { width: 100%; }
+  .note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 24px; }
+
+  .faq { max-width: 760px; margin: 0 auto; }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; margin-bottom: 12px; }
+  summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--muted); font-size: 20px; line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { color: var(--muted); margin: 12px 0 0; }
+
+  .banner { text-align: center; background: linear-gradient(135deg, rgba(124,92,255,.18), rgba(91,140,255,.08)); border: 1px solid var(--line); border-radius: 20px; padding: 56px 24px; }
+  .banner h2 { margin: 0 0 10px; font-size: 32px; }
+  .banner p { color: var(--muted); margin: 0 0 26px; }
+
+  footer { border-top: 1px solid var(--line); padding: 34px 0; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer .links { gap: 20px; font-size: 14px; }
+
+  @media (max-width: 720px) {
+    .links a:not(.btn) { display: none; }
+    .hero { padding: 70px 0 60px; }
+    .stats { gap: 32px; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo"><span class="grad">WIZOX</span></a>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#store">Store</a>
+      <a href="#faq">FAQ</a>
+      <a href="#" data-link="discord">Discord</a>
+      <a href="#store" class="btn primary small">Buy now</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge" data-text="version">Minecraft 1.21 · Fabric</div>
+    <h1>Play smoother with<br><span class="grad">Wizox Client</span></h1>
+    <p>A fast, clean Minecraft client with a modern click GUI, a fully customizable HUD and the performance boost your game has been missing.</p>
+    <div class="cta">
+      <a href="#store" class="btn primary">Get Wizox</a>
+      <a href="#" class="btn ghost" data-link="discord">Join the Discord</a>
+    </div>
+    <div class="stats">
+      <div><b>60+</b><small>Modules</small></div>
+      <div><b>2x</b><small>More FPS</small></div>
+      <div><b>24/7</b><small>Support</small></div>
+    </div>
+  </div>
+</header>
+
+<section id="features" class="alt">
+  <div class="wrap">
+    <div class="head">
+      <h2>Everything in one client</h2>
+      <p>No mod packs to juggle. Install once and you're set.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>Performance</h3><p>Optimized rendering and chunk loading for higher, steadier FPS — even on low-end PCs.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h3>Click GUI</h3><p>A clean, searchable menu to turn modules on and off and change every setting in seconds.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M6 8h4M6 12h7"/></svg></div>
+        <h3>Custom HUD</h3><p>Drag and drop FPS, CPS, keystrokes, armor, coords and more anywhere on screen.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></div>
+        <h3>Configs</h3><p>Save, load and share your setups. Switch between configs with one click.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></div>
+        <h3>Auto updates</h3><p>New features and fixes land automatically. Your key keeps working across updates.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <h3>Real support</h3><p>Stuck? Our Discord team helps you install, set up and get the most out of Wizox.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="store">
+  <div class="wrap">
+    <div class="head">
+      <h2>Store</h2>
+      <p>Pick a plan. Your license key is delivered instantly by email.</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <h3>Weekly</h3>
+        <div class="price" data-price="weekly">€3.99 <span>/ 7 days</span></div>
+        <ul><li>All modules</li><li>Click GUI &amp; HUD editor</li><li>Discord support</li></ul>
+        <a href="#" class="btn ghost" data-buy="weekly">Buy weekly</a>
+      </div>
+      <div class="plan best">
+        <div class="tag">Most popular</div>
+        <h3>Monthly</h3>
+        <div class="price" data-price="monthly">€9.99 <span>/ 30 days</span></div>
+        <ul><li>All modules</li><li>Click GUI &amp; HUD editor</li><li>Cloud configs</li><li>Priority support</li></ul>
+        <a href="#" class="btn primary" data-buy="monthly">Buy monthly</a>
+      </div>
+      <div class="plan">
+        <h3>Lifetime</h3>
+        <div class="price" data-price="lifetime">€29.99 <span>once</span></div>
+        <ul><li>Everything in Monthly</li><li>All future updates</li><li>Lifetime role in Discord</li><li>Early access to new features</li></ul>
+        <a href="#" class="btn ghost" data-buy="lifetime">Buy lifetime</a>
+      </div>
+    </div>
+    <p class="note">Secure checkout · Keys work on one PC — need to switch? Ask support for an HWID reset.</p>
+  </div>
+</section>
+
+<section id="faq" class="alt">
+  <div class="wrap">
+    <div class="head"><h2>FAQ</h2></div>
+    <div class="faq">
+      <details><summary>How do I get my key?</summary><p>Right after paying you get an email with your key. You can also find it on your order page.</p></details>
+      <details><summary>How do I install Wizox?</summary><p>Download the installer, run it, pick your Minecraft folder and launch. Enter your key the first time you start the game.</p></details>
+      <details><summary>When does my time start?</summary><p>Your plan starts the first time you activate the key — not when you buy it.</p></details>
+      <details><summary>Can I use my key on another PC?</summary><p>Each key is locked to one PC. If you get a new PC, open a ticket in our Discord and we'll reset it.</p></details>
+      <details><summary>Do you offer refunds?</summary><p>Because keys are digital and delivered instantly, all sales are final. Contact support if something doesn't work and we'll help.</p></details>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="banner">
+      <h2>Ready to upgrade your game?</h2>
+      <p>Join the players already using Wizox.</p>
+      <div class="cta">
+        <a href="#store" class="btn primary">Get Wizox</a>
+        <a href="#" class="btn ghost" data-link="download">Download</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="year"></span> Wizox Client. Not affiliated with Mojang or Microsoft.</div>
+    <div class="links">
+      <a href="#" data-link="discord">Discord</a>
+      <a href="#store">Store</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ===== Edit your links here =====
+  const LINKS = {
+    discord:  "https://discord.gg/YOUR-INVITE",
+    download: "https://example.com/wizox-installer.exe",
+    weekly:   "https://YOUR-SHOP.mysellix.io/product/weekly",
+    monthly:  "https://YOUR-SHOP.mysellix.io/product/monthly",
+    lifetime: "https://YOUR-SHOP.mysellix.io/product/lifetime",
+  };
+  // =================================
+
+  document.querySelectorAll("[data-link]").forEach((a) => {
+    a.href = LINKS[a.dataset.link]; a.target = "_blank"; a.rel = "noopener";
+  });
+  document.querySelectorAll("[data-buy]").forEach((a) => {
+    a.href = LINKS[a.dataset.buy]; a.target = "_blank"; a.rel = "noopener";
+  });
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
