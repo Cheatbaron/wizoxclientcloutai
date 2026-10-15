@@ -72,7 +72,7 @@
   .hero::before { content: ""; position: absolute; left: 50%; top: -260px; width: 900px; height: 700px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(255,46,67,.22), transparent); pointer-events: none; }
   .horizon { position: absolute; left: -10%; right: -10%; bottom: -560px; height: 700px; border-radius: 50%; border-top: 1px solid rgba(255,46,67,.45); box-shadow: 0 -30px 80px -20px rgba(255,46,67,.25); pointer-events: none; }
   .hero .wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 26px; }
-  .bigmark { font: 800 clamp(70px, 12vw, 128px)/.9 var(--font-display); letter-spacing: -.06em; font-style: italic; background: linear-gradient(180deg, #ff5a6c, var(--red) 60%, #c41228); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 12px 40px rgba(255,46,67,.45)); transform: skewX(-8deg); user-select: none; }
+  .bigmark { display: inline-block; padding: 0 .12em; font: 800 clamp(64px, 11vw, 120px)/1 var(--font-display); letter-spacing: -.04em; color: var(--red); text-shadow: 0 0 40px rgba(255,46,67,.5), 0 6px 0 #8a0e1c; transform: skewX(-10deg); user-select: none; }
   .hero h1 { font: 800 clamp(40px, 7.4vw, 92px)/.98 var(--font-display); letter-spacing: -.045em; max-width: 14ch; }
   .hero p { color: var(--muted); font-size: 18px; max-width: 46ch; margin: 0; }
   .cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
