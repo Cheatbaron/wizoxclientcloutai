@@ -5,6 +5,10 @@ compatibility_date = "2025-01-01"
 # Lets the worker import admin.html as a string.
 rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = true }]
 
+[vars]
+# Your main website. Stripe sends buyers back here after paying.
+SITE_URL = "https://seekboosting.lol"
+
 # Replace the id below with the one printed by:
 #   npx wrangler kv namespace create KEYS
 [[kv_namespaces]]

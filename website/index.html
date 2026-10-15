@@ -56,6 +56,7 @@
   .btn:hover { transform: translateY(-1px); border-color: var(--dim); }
   .btn.primary { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 10px 30px -10px rgba(255,46,67,.8); }
   .btn.primary:hover { background: #ff4357; }
+  .btn.busy { opacity: .7; cursor: progress; }
   .btn.sm { height: 38px; padding: 0 14px; font-size: 14px; }
   .btn.light { background: var(--text); color: var(--bg); border-color: var(--text); }
   .arrow { transition: transform .15s; }
@@ -280,7 +281,7 @@
         </div>
       </div>
     </div>
-    <div class="fine"><span>One-time payment</span><span>Key delivered instantly</span><span>Prices in EUR</span></div>
+    <div class="fine"><span>Secure checkout by Stripe</span><span>One-time payment</span><span>Key delivered instantly</span><span>Prices in EUR</span></div>
   </div>
 </section>
 
@@ -331,14 +332,36 @@
   const LINKS = {
     discord:  "https://discord.gg/YOUR-INVITE",
     download: "https://example.com/wizox.jar",
-    monthly:  "https://YOUR-SHOP.mysellix.io/product/monthly",
-    lifetime: "https://YOUR-SHOP.mysellix.io/product/lifetime",
   };
+  // Your license site; it creates the Stripe checkout and the key.
+  const API = "https://license.seekboosting.lol";
   // =================================
 
-  document.querySelectorAll("[data-link], [data-buy]").forEach((a) => {
-    a.href = LINKS[a.dataset.link || a.dataset.buy];
+  document.querySelectorAll("[data-link]").forEach((a) => {
+    a.href = LINKS[a.dataset.link];
     a.target = "_blank"; a.rel = "noopener";
+  });
+
+  // Buy buttons: ask the license site for a Stripe checkout page, then go there.
+  document.querySelectorAll("[data-buy]").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (btn.classList.contains("busy")) return;
+      const label = btn.innerHTML;
+      btn.classList.add("busy"); btn.innerHTML = "Opening checkout…";
+      try {
+        const res = await fetch(API + "/api/checkout", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ plan: btn.dataset.buy }),
+        });
+        const data = await res.json();
+        if (!data.url) throw new Error(data.error);
+        location.href = data.url;
+      } catch {
+        toast("Checkout couldn't open. Try again, or ask in our Discord.");
+        btn.classList.remove("busy"); btn.innerHTML = label;
+      }
+    });
   });
   document.getElementById("year").textContent = new Date().getFullYear();
 

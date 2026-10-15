@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Wizox Key</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0708; --panel: #171012; --panel-2: #1f1517; --line: #2c1e21; --line-2: #3a272b;
+    --text: #f3ecec; --muted: #9b8a8d; --red: #ff2e43; --ok: #3ddc84;
+    --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --font-body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: radial-gradient(70% 50% at 50% 0%, rgba(255,46,67,.18), transparent), var(--bg); color: var(--text); font: 16px/1.6 var(--font-body); padding: 40px max(20px, env(safe-area-inset-left, 0px)); }
+  main { width: 100%; max-width: 560px; display: grid; gap: 22px; text-align: center; }
+  .logo { width: 120px; aspect-ratio: 932 / 288; margin: 0 auto 6px; background: url("logo.png") center / contain no-repeat; }
+  h1 { margin: 0; font: 800 clamp(28px, 6vw, 40px)/1.1 var(--font-display); letter-spacing: -.03em; text-wrap: balance; }
+  p { margin: 0; color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 14px; }
+  .label { font: 600 11px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .key { font: 600 clamp(15px, 4vw, 20px) var(--font-mono); letter-spacing: .04em; padding: 14px; border-radius: 10px; background: var(--panel-2); border: 1px dashed var(--line-2); user-select: all; overflow-wrap: anywhere; }
+  .btn { height: 46px; border: 0; border-radius: 10px; background: var(--red); color: #fff; font: 600 15px var(--font-body); cursor: pointer; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--text); display: inline-grid; place-items: center; text-decoration: none; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  ol { text-align: left; margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 6px; }
+  ol b { color: var(--text); font-weight: 600; }
+  .warn { font-size: 14px; color: #f5c26b; }
+  .spinner { width: 28px; height: 28px; margin: 6px auto; border-radius: 50%; border: 3px solid var(--line-2); border-top-color: var(--red); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  [hidden] { display: none !important; }
+  @media (max-width: 460px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" role="img" aria-label="Wizox"></div>
+
+  <section id="loading">
+    <div class="spinner"></div>
+    <h1>Confirming your payment…</h1>
+    <p>This takes a few seconds. Don't close this page.</p>
+  </section>
+
+  <section id="done" hidden style="display:grid;gap:22px">
+    <h1>You're in. Here's your key.</h1>
+    <div class="card">
+      <div class="label" id="planLabel">Wizox license</div>
+      <div class="key" id="key"></div>
+      <div class="row">
+        <button class="btn" id="copy">Copy key</button>
+        <a class="btn ghost" id="download" href="#" target="_blank" rel="noopener">Download Wizox</a>
+      </div>
+      <p class="warn">Save this key now. Write it down or keep it somewhere safe.</p>
+    </div>
+    <div class="card">
+      <div class="label">Next steps</div>
+      <ol>
+        <li>Put <b>wizox.jar</b> in your <b>.minecraft/mods</b> folder next to Fabric API.</li>
+        <li>Start Minecraft 1.21 with Fabric.</li>
+        <li>Paste your key when asked, then press <b>Right Shift</b>.</li>
+      </ol>
+    </div>
+    <p>Lost your key? Open a ticket in our <a href="#" id="discord" style="color:var(--text)">Discord</a> with your payment email.</p>
+  </section>
+
+  <section id="error" hidden style="display:grid;gap:16px">
+    <h1>We couldn't find your order.</h1>
+    <p id="errorText">If you paid, your key is safe. Open a ticket in our Discord with your payment email and we'll send it to you.</p>
+    <a class="btn ghost" href="index.html">Back to Wizox</a>
+  </section>
+</main>
+
+<script>
+  // ===== Same values as on the main page =====
+  const API = "https://license.seekboosting.lol";
+  const DOWNLOAD = "https://example.com/wizox.jar";
+  const DISCORD = "https://discord.gg/YOUR-INVITE";
+  // ===========================================
+
+  const $ = (id) => document.getElementById(id);
+  $("download").href = DOWNLOAD;
+  $("discord").href = DISCORD;
+  const show = (id) => ["loading", "done", "error"].forEach((s) => ($(s).hidden = s !== id));
+
+  const session = new URLSearchParams(location.search).get("session_id");
+  let tries = 0;
+
+  async function check() {
+    if (!session) return show("error");
+    try {
+      const res = await fetch(`${API}/api/order?session_id=${encodeURIComponent(session)}`);
+      const data = await res.json();
+      if (data.status === "paid") {
+        $("key").textContent = data.key;
+        $("planLabel").textContent = data.plan === "lifetime" ? "Wizox Lifetime" : "Wizox Monthly · 30 days from first use";
+        return show("done");
+      }
+      if (res.status === 202 && ++tries < 20) return setTimeout(check, 3000);
+      if (res.status === 202) $("errorText").textContent = "Your payment is still processing. Refresh this page in a minute. If it doesn't show up, open a ticket in our Discord.";
+    } catch {
+      if (++tries < 5) return setTimeout(check, 3000);
+    }
+    show("error");
+  }
+
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("key").textContent); $("copy").textContent = "Copied"; }
+    catch { getSelection().selectAllChildren($("key")); $("copy").textContent = "Press Ctrl+C"; }
+    setTimeout(() => ($("copy").textContent = "Copy key"), 2000);
+  });
+
+  check();
+</script>
+</body>
+</html>

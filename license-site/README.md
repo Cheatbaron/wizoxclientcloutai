@@ -30,6 +30,30 @@ npx wrangler deploy
 
 Done – open https://license.seekboosting.lol/admin.
 
+## Payments (Stripe)
+
+The website's **Get Monthly / Get Lifetime** buttons open a Stripe checkout. When the payment goes through,
+a key is created automatically and shown to the buyer on `thanks.html`. It also shows up in the admin panel
+with the plan and the buyer's email as its note.
+
+Prices live in `PLANS` at the top of `src/worker.js` (in cents: `799` = €7.99).
+
+1. Make an account at https://dashboard.stripe.com and finish the business details so you can take payments.
+2. **Developers → API keys**: copy the *Secret key* (`sk_live_...`) and run:
+   ```
+   npx wrangler secret put STRIPE_SECRET_KEY
+   ```
+3. **Developers → Webhooks → Add endpoint**:
+   - URL: `https://license.seekboosting.lol/api/stripe-webhook`
+   - Events: `checkout.session.completed` and `checkout.session.async_payment_succeeded`
+   - Copy its *Signing secret* (`whsec_...`) and run:
+   ```
+   npx wrangler secret put STRIPE_WEBHOOK_SECRET
+   ```
+4. `npx wrangler deploy`
+
+Tip: test first with Stripe's **test mode** keys (`sk_test_...`) and card `4242 4242 4242 4242`.
+
 ## How keys work
 
 - Format: `WIZOX-XXXX-XXXX-XXXX-XXXX`

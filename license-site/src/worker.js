@@ -2,10 +2,25 @@ import ADMIN_HTML from "./admin.html";
 
 const KEY_PREFIX = "key:";
 
+const ORDER_PREFIX = "order:";
+
+// What each plan costs and how long its key lasts (0 days = lifetime).
+const PLANS = {
+  monthly: { name: "Wizox Client – Monthly", amount: 799, days: 30 },
+  lifetime: { name: "Wizox Client – Lifetime", amount: 1999, days: 0 },
+};
+
+let corsOrigin = "*";
+
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json", "cache-control": "no-store" },
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+      "access-control-allow-origin": corsOrigin,
+      "access-control-allow-headers": "content-type",
+    },
   });
 
 function randomKey() {
@@ -51,6 +66,22 @@ async function listKeys(env) {
   return records.sort((a, b) => b.createdAt - a.createdAt);
 }
 
+function newKeyRecord(days, note, hwidLock = true) {
+  return {
+    key: randomKey(),
+    days,
+    note: String(note || "").slice(0, 100),
+    hwidLock,
+    hwid: null,
+    revoked: false,
+    createdAt: Date.now(),
+    activatedAt: null,
+    expiresAt: null,
+    lastUsedAt: null,
+    uses: 0,
+  };
+}
+
 async function readBody(request) {
   try {
     return await request.json();
@@ -80,7 +111,7 @@ async function verify(request, env) {
     if (typeof hwid !== "string" || !hwid) return json({ valid: false, reason: "missing_hwid" }, 400);
     if (!record.hwid) {
       record.hwid = hwid;
-      } else if (record.hwid !== hwid) {
+    } else if (record.hwid !== hwid) {
       return json({ valid: false, reason: "hwid_mismatch" });
     }
   }
@@ -105,19 +136,7 @@ async function adminApi(request, env, path) {
     const days = Math.max(parseInt(body.days, 10) || 0, 0);
     const created = [];
     for (let i = 0; i < count; i++) {
-      const record = {
-        key: randomKey(),
-        days,
-        note: String(body.note || "").slice(0, 100),
-        hwidLock: body.hwidLock !== false,
-        hwid: null,
-        revoked: false,
-        createdAt: Date.now(),
-        activatedAt: null,
-        expiresAt: null,
-        lastUsedAt: null,
-        uses: 0,
-      };
+      const record = newKeyRecord(days, body.note, body.hwidLock !== false);
       await putKey(env, record);
       created.push(record);
     }
@@ -146,9 +165,111 @@ async function adminApi(request, env, path) {
   return json({ error: "not_found" }, 404);
 }
 
+// ----- Stripe payments -----
+
+async function stripe(env, method, path, params) {
+  const res = await fetch("https://api.stripe.com/v1" + path, {
+    method,
+    headers: {
+      authorization: "Bearer " + env.STRIPE_SECRET_KEY,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: params ? new URLSearchParams(params) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || "Stripe request failed");
+  return data;
+}
+
+// Website "Get Monthly / Get Lifetime" -> { url } of a Stripe checkout page.
+async function createCheckout(request, env) {
+  const { plan } = await readBody(request);
+  const p = PLANS[plan];
+  if (!p) return json({ error: "unknown_plan" }, 400);
+  if (!env.STRIPE_SECRET_KEY) return json({ error: "payments_not_set_up" }, 503);
+
+  const site = env.SITE_URL || "https://seekboosting.lol";
+  const session = await stripe(env, "POST", "/checkout/sessions", {
+    mode: "payment",
+    "line_items[0][quantity]": "1",
+    "line_items[0][price_data][currency]": "eur",
+    "line_items[0][price_data][unit_amount]": String(p.amount),
+    "line_items[0][price_data][product_data][name]": p.name,
+    "metadata[plan]": plan,
+    success_url: `${site}/thanks.html?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${site}/#pricing`,
+  });
+  return json({ url: session.url });
+}
+
+// Creates the key for a paid order exactly once, however many times it's called.
+async function fulfill(env, session) {
+  const existing = await env.KEYS.get(ORDER_PREFIX + session.id, "json");
+  if (existing) return existing;
+  if (session.payment_status !== "paid") return null;
+
+  const plan = PLANS[session.metadata?.plan] ? session.metadata.plan : "monthly";
+  const email = session.customer_details?.email || "";
+  const record = newKeyRecord(PLANS[plan].days, `${plan} · ${email}`);
+  await putKey(env, record);
+  const order = { key: record.key, plan, email, paidAt: Date.now() };
+  await env.KEYS.put(ORDER_PREFIX + session.id, JSON.stringify(order));
+  return order;
+}
+
+// Thanks page asks for its key: ?session_id=cs_...
+async function getOrder(url, env) {
+  const id = url.searchParams.get("session_id") || "";
+  if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return json({ error: "bad_session" }, 400);
+  // The webhook usually got here first; only ask Stripe if it hasn't.
+  const order = (await env.KEYS.get(ORDER_PREFIX + id, "json"))
+    || await fulfill(env, await stripe(env, "GET", "/checkout/sessions/" + id));
+  if (!order) return json({ status: "pending" }, 202);
+  return json({ status: "paid", key: order.key, plan: order.plan, email: order.email });
+}
+
+async function hmacHex(secret, text) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(text));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Stripe tells us about payments here, so keys are made even if the buyer closes the tab.
+async function stripeWebhook(request, env) {
+  const body = await request.text();
+  const header = request.headers.get("stripe-signature") || "";
+  const parts = Object.fromEntries(header.split(",").map((p) => p.split("=")));
+  if (!env.STRIPE_WEBHOOK_SECRET || !parts.t || !parts.v1) return json({ error: "bad_signature" }, 400);
+  if (Math.abs(Date.now() / 1000 - Number(parts.t)) > 300) return json({ error: "too_old" }, 400);
+  const expected = await hmacHex(env.STRIPE_WEBHOOK_SECRET, `${parts.t}.${body}`);
+  if (expected !== parts.v1) return json({ error: "bad_signature" }, 400);
+
+  const event = JSON.parse(body);
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+    await fulfill(env, event.data.object);
+  }
+  return json({ received: true });
+}
+
 export default {
   async fetch(request, env) {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const { pathname } = url;
+    corsOrigin = env.SITE_URL || "*";
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: { "access-control-allow-origin": corsOrigin, "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET, POST" },
+      });
+    }
+    try {
+      if (pathname === "/api/checkout" && request.method === "POST") return await createCheckout(request, env);
+      if (pathname === "/api/order" && request.method === "GET") return await getOrder(url, env);
+      if (pathname === "/api/stripe-webhook" && request.method === "POST") return await stripeWebhook(request, env);
+    } catch (err) {
+      return json({ error: err.message }, 502);
+    }
 
     if (pathname === "/api/verify" && request.method === "POST") return verify(request, env);
     if (pathname.startsWith("/api/admin/")) return adminApi(request, env, pathname);
