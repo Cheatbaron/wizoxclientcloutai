@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-  /* Layout: centered 1160px column; hero wordmark → live GUI demo → modules → setup → pricing → discord → faq → footer */
+  /* Layout: centered 1160px column; hero wordmark → setup → pricing → discord → faq → footer */
   :root {
     color-scheme: dark;
     --bg: #0b0708;
@@ -81,102 +81,6 @@
 
   section { padding-block: 110px; }
   .border-top { border-top: 1px solid var(--line); }
-
-  /* Inside the client: copy row + full-width replica of the in-game GUI */
-  .inside-head { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; align-items: end; margin-bottom: 48px; }
-  .points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
-  .points h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .points p { margin: 0; color: var(--muted); font-size: 15px; }
-  .kbd { display: inline-block; font: 600 12px var(--font-mono); padding: 2px 7px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; background: var(--panel-2); color: var(--text); }
-
-  .demo { background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; padding: 14px; box-shadow: 0 40px 80px -40px rgba(0,0,0,.8); min-width: 0; }
-  .demo-bar { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 12px; font: 400 12px var(--font-mono); color: var(--muted); }
-  .demo-bar .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin-right: 8px; box-shadow: 0 0 10px var(--red); }
-  .scene { position: relative; border-radius: 12px; overflow: hidden; height: 660px; background:
-      linear-gradient(180deg, rgba(8,8,10,.35), rgba(8,8,10,.8)),
-      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 2px, transparent 2px 34px),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 2px, transparent 2px 34px),
-      radial-gradient(120% 90% at 50% 0%, #3b3127, #17130f 55%, #0d0c0b); }
-  .scene::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: repeating-linear-gradient(90deg, #26331f 0 34px, #1f2b1a 34px 68px); opacity: .5; }
-  .sq { position: absolute; z-index: 1; background: rgba(150,150,160,.16); border: 1px solid rgba(255,255,255,.06); animation: spin linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg) translateY(-12px); } }
-  .closed-hint { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: #b9b9c0; font: 400 13px var(--font-mono); }
-
-  /* Replica of the WizoxClient click GUI (neutral greys, white accent) */
-  .gui { --g-acc: #f2f2f5; --g-r: 6px; --g-bg: rgba(20,20,24,.86); --g-row: rgba(44,44,50,.55); --g-row-h: rgba(58,58,66,.7); --g-line: rgba(255,255,255,.08); --g-text: #e9e9ee; --g-mute: #9a9aa4;
-         position: absolute; z-index: 2; left: 3%; right: 3%; top: 4%; bottom: 4%; display: grid; grid-template-rows: auto minmax(0, 1fr);
-         background: var(--g-bg); border: 1px solid var(--g-line); border-radius: 12px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-         font-family: var(--font-body); color: var(--g-text); transition: opacity .25s, transform .25s; }
-  .gui.closed { opacity: 0; transform: scale(.97); pointer-events: none; }
-  .g-head { position: relative; display: grid; place-items: center; height: 52px; border-bottom: 2px solid var(--g-acc); margin: 0 8px; }
-  .g-head h4 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
-  .g-search { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 170px; height: 30px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--g-line); background: rgba(50,50,58,.6); color: var(--g-text); font: 500 12.5px var(--font-body); }
-  .g-search::placeholder { color: var(--g-mute); }
-  .g-search:focus { outline: none; border-color: rgba(255,255,255,.3); }
-  .g-body { display: grid; grid-template-columns: 172px minmax(0, 1fr); min-height: 0; padding: 12px 8px 10px; gap: 10px; }
-  .g-side { display: grid; align-content: start; gap: 3px; padding-right: 10px; border-right: 3px solid rgba(255,255,255,.12); overflow: auto; }
-  .g-label { font-size: 11px; color: var(--g-mute); padding: 6px 8px 4px; }
-  .g-cat { position: relative; display: flex; align-items: center; gap: 11px; height: 35px; padding: 0 8px; border: 0; border-radius: 7px; background: none; color: var(--g-text); font: 500 13.5px var(--font-body); text-align: left; cursor: pointer; }
-  .g-cat:hover { background: rgba(255,255,255,.04); }
-  .g-cat .ic { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; background: rgba(255,255,255,.06); flex: none; }
-  .g-cat .ic svg { width: 14px; height: 14px; }
-  .g-cat.on { background: var(--g-row-h); }
-  .g-cat.on .ic { background: rgba(255,255,255,.16); outline: 1px solid rgba(255,255,255,.25); }
-  .g-cat.on::before { content: ""; position: absolute; left: -6px; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--g-acc); }
-  .g-mods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; align-content: start; overflow: auto; padding-right: 2px; }
-  .g-mod { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border: 0; border-radius: var(--g-r); background: var(--g-row); color: var(--g-text); font: 500 13px var(--font-body); letter-spacing: .01em; text-align: left; cursor: pointer; min-width: 0; }
-  .g-mod:hover { background: var(--g-row-h); }
-  .g-mod .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .g-mod.on .nm { font-weight: 700; color: #fff; }
-  .g-mod .bind { font: 500 11px var(--font-mono); color: var(--g-mute); width: 14px; text-align: center; }
-  .g-mod .chev { color: var(--g-mute); font-size: 15px; line-height: 1; }
-  .g-sw { flex: none; width: 30px; height: 17px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.08); position: relative; transition: background .2s; }
-  .g-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #6f6f78; transition: transform .2s, background .2s; }
-  .g-mod.on .g-sw, .p-sw.on { background: color-mix(in srgb, var(--g-acc) 38%, transparent); }
-  .g-mod.on .g-sw::after, .p-sw.on::after { transform: translateX(13px); background: var(--g-acc); }
-  .gui.noblur { backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .dim { position: absolute; inset: 0; z-index: 1; background: #000; opacity: .25; pointer-events: none; transition: opacity .2s; }
-  /* Client pages: Friends / Theme / Config */
-  .panel { grid-column: 1 / -1; display: grid; gap: 8px; align-content: start; }
-  .panel.two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; }
-  .panel.two > div { display: grid; gap: 8px; align-content: start; }
-  .p-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--g-mute); padding: 6px 2px 0; }
-  .p-box { display: grid; gap: 10px; padding: 10px; border-radius: var(--g-r); background: var(--g-row); }
-  .p-row { display: flex; align-items: center; gap: 8px; }
-  .p-row > * { min-width: 0; }
-  .p-in { flex: 1; height: 32px; padding: 0 10px; border-radius: var(--g-r); border: 1px solid var(--g-line); background: rgba(70,70,78,.55); color: var(--g-text); font: 500 13px var(--font-body); }
-  .p-in::placeholder { color: var(--g-mute); }
-  .p-btn { height: 32px; padding: 0 16px; flex: 1; border-radius: var(--g-r); border: 0; background: rgba(70,70,78,.6); color: var(--g-text); font: 500 13px var(--font-body); cursor: pointer; }
-  .p-btn:hover { background: rgba(95,95,105,.7); }
-  .p-btn.fit { flex: 0 0 auto; min-width: 80px; }
-  .p-btn.strong { background: rgba(110,110,120,.7); }
-  .p-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--g-r); background: var(--g-row); font-size: 13px; }
-  .p-item small { display: block; color: var(--g-mute); font-size: 11.5px; }
-  .p-item b { font-weight: 600; }
-  .p-muted { color: var(--g-mute); }
-  .p-x { border: 0; background: none; color: var(--g-mute); cursor: pointer; font-size: 16px; }
-  .dots { display: flex; gap: 14px; padding: 4px 2px; }
-  .dotc { width: 22px; height: 22px; border-radius: 50%; border: 0; cursor: pointer; box-shadow: 0 0 0 2px transparent; }
-  .dotc.on { box-shadow: 0 0 0 2px #1a1a1f, 0 0 0 4px #fff; }
-  .p-set { display: grid; gap: 8px; padding: 10px 12px; border-radius: var(--g-r); background: var(--g-row); font-size: 13px; }
-  .p-set .top { display: flex; justify-content: space-between; align-items: center; }
-  .p-set .val { font: 500 11px var(--font-mono); padding: 2px 7px; border-radius: 5px; background: rgba(255,255,255,.08); }
-  .p-set input[type=range] { width: 100%; accent-color: var(--g-acc); height: 4px; }
-  .swatch { width: 26px; height: 16px; border-radius: 4px; background: var(--g-acc); }
-  .p-sw { flex: none; width: 30px; height: 17px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.08); position: relative; cursor: pointer; padding: 0; transition: background .2s; }
-  .p-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #6f6f78; transition: transform .2s, background .2s; }
-  .g-empty { grid-column: 1 / -1; padding: 30px 0; text-align: center; color: var(--g-mute); font-size: 13px; }
-  .demo-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 6px 2px; font-size: 12px; color: var(--muted); }
-
-  /* Category strip */
-  .strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 64px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--bg-2); }
-  .strip a { padding: 26px; display: grid; gap: 8px; border-right: 1px solid var(--line); transition: background .2s; }
-  .strip a:last-child { border-right: 0; }
-  .strip a:hover { background: var(--panel); }
-  .strip .row { display: flex; align-items: center; gap: 12px; font-weight: 600; }
-  .strip .row svg { width: 22px; height: 22px; color: var(--red); }
-  .strip .row em { margin-left: auto; font-style: normal; color: var(--dim); }
-  .strip small { color: var(--muted); font-size: 13px; padding-left: 34px; }
 
   /* Setup */
   .sec-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 44px; }
@@ -260,11 +164,7 @@
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   @media (max-width: 980px) {
-    .inside-head, .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
-    .points { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-    .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .strip a:nth-child(2) { border-right: 0; }
-    .strip a:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
     .steps { grid-template-columns: minmax(0, 1fr); }
     .plans { grid-template-columns: minmax(0, 440px); }
     .foot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -274,20 +174,6 @@
     .navright .btn:not(.primary) { display: none; }
     section { padding-block: 76px; }
     .hero { padding-block: 64px 96px; }
-    .strip { grid-template-columns: minmax(0, 1fr); }
-    .strip a { border-right: 0; border-bottom: 1px solid var(--line); }
-    .strip a:last-child { border-bottom: 0; }
-    .scene { height: 560px; }
-    .gui { left: 2%; right: 2%; top: 2%; bottom: 2%; }
-    .g-head { justify-items: start; padding-left: 6px; }
-    .g-head h4 { font-size: 16px; }
-    .g-search { width: 120px; }
-    .g-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-    .g-side { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding: 0 0 8px; border-right: 0; border-bottom: 2px solid rgba(255,255,255,.12); }
-    .g-label { display: none; }
-    .g-cat.on::before { display: none; }
-    .g-mods { grid-template-columns: minmax(0, 1fr); }
-    .panel.two { grid-template-columns: minmax(0, 1fr); }
     .band { padding: 26px 22px; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -306,7 +192,6 @@
   <div class="wrap">
     <a href="#top" class="logo"><span class="mark"><svg><use href="#w"/></svg></span>Wizox</a>
     <div class="navlinks">
-      <a href="#modules">Modules</a>
       <a href="#setup">Setup</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -328,48 +213,11 @@
     <p>Combat, render and visual modules in one fast client. Set it up once, open it with Right Shift, and play.</p>
     <div class="cta">
       <a class="btn primary" href="#pricing">Get Wizox <span class="arrow">→</span></a>
-      <a class="btn" href="#modules">Try the GUI</a>
+      <a class="btn" href="#setup">How it works</a>
     </div>
     <div class="specs"><span>Minecraft 1.21</span><span>Fabric</span><span>Click GUI + HUD editor</span></div>
   </div>
 </header>
-
-<section id="modules" class="border-top">
-  <div class="wrap">
-    <div class="inside-head">
-      <div>
-        <div class="eyebrow">Inside the client</div>
-        <h2 style="margin-top:18px">This is<br>Wizox.</h2>
-      </div>
-      <div class="points">
-        <div><h3>The real menu</h3><p>This is the WizoxClient GUI. Pick a category, search and toggle modules.</p></div>
-        <div><h3>Your setup, saved</h3><p>Keybinds, HUD layout and module settings save to a config you can load in one click.</p></div>
-        <div><h3>Opens with <span class="kbd">R Shift</span></h3><p>Press Right Shift on this page to open and close the GUI, same as in game.</p></div>
-      </div>
-    </div>
-
-    <div class="demo">
-      <div class="demo-bar"><span><span class="dot"></span>WIZOXCLIENT / GUI</span><span id="activeCount">0 enabled</span></div>
-      <div class="scene" id="scene">
-        <div class="closed-hint">Press <span class="kbd" style="margin:0 6px">R Shift</span> to open</div>
-        <div class="dim" id="dim"></div>
-        <div class="gui" id="gui">
-          <div class="g-head">
-            <h4>WizoxClient</h4>
-            <input class="g-search" id="gSearch" type="text" placeholder="Search modules..." autocomplete="off" aria-label="Search modules">
-          </div>
-          <div class="g-body">
-            <div class="g-side" id="gSide"></div>
-            <div class="g-mods" id="gMods"></div>
-          </div>
-        </div>
-      </div>
-      <div class="demo-foot"><span id="modCount"></span><span>Toggle with <span class="kbd">R Shift</span></span></div>
-    </div>
-
-    <div class="strip" id="strip"></div>
-  </div>
-</section>
 
 <section id="setup" class="border-top">
   <div class="wrap">
@@ -469,7 +317,7 @@
   <div class="wrap">
     <div class="foot">
       <div><a href="#top" class="logo"><span class="mark"><svg><use href="#w"/></svg></span>Wizox</a><p>Wizox Client for Minecraft 1.21 · Fabric.</p></div>
-      <div><h4>Product</h4><ul><li><a href="#modules">Modules</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#setup">Setup guide</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="#setup">Setup guide</a></li></ul></div>
       <div><h4>Account</h4><ul><li><a href="#" data-link="download">Download</a></li><li><a href="#" data-link="discord">Reset HWID</a></li></ul></div>
       <div><h4>Support</h4><ul><li><a href="#faq">FAQ</a></li><li><a href="#" data-link="discord">Discord</a></li></ul></div>
     </div>
@@ -501,193 +349,7 @@
     clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1600);
   };
 
-  // ----- Replica of the in-game GUI -----
-  const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-  const ICONS = {
-    Combat: svg('<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 17.5L21 6V3h-3L6.5 14.5M11 19l-6-6M8 16l-4 4M5 21l-2-2"/>'),
-    Misc: svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
-    Donut: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>'),
-    Render: svg('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
-    WizoxClient: svg('<path d="M12 3l2 5.5L19.5 10 14 12l-2 5.5L10 12 4.5 10 10 8.5z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'),
-    Movement: svg('<path d="M8 3c-2 0-3 2-3 5s1 5 3 5 3-2 3-5-1-5-3-5zM16 11c-2 0-3 2-3 5s1 5 3 5 3-2 3-5-1-5-3-5z"/>'),
-    Basefinding: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/>'),
-    Visuals: svg('<circle cx="12" cy="12" r="9"/><path d="M14.3 3.3L8.6 13M21 10.5H9.7M17.8 18.7L12.2 9M9.7 20.7L15.4 11M3 13.5h11.3M6.2 5.3l5.6 9.7"/>'),
-    HUD: svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
-    Friends: svg('<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4a4 4 0 010 8M22 21c0-3-2-5-4-5.5"/>'),
-    Theme: svg('<path d="M12 3a9 9 0 100 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 004-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>'),
-    Config: svg('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'),
-  };
-  // [name, keybind?] - order matches the in-game grid (left, right, left, right ...)
-  const GROUPS = { Modules: ["Combat", "Misc", "Donut", "Render", "WizoxClient", "Movement", "Basefinding", "Visuals"], Client: ["HUD", "Friends", "Theme", "Config"] };
-  const MODULES = {
-    Combat: ["Aim Assist", "Hover Totem", "Anchor Macro", "FastXP", "Anchor Aura", "Auto Totem", "Crystal Macro", "Auto Inventory Totem", "Crystal Aura", "W Tap", "Auto City", "Crystal Optimizer", "Triggerbot", "Friend Guard", "Kill Aura", "Spear Swap", "Shield Breaker", "Jump Reset", "Mace", "Key Throw"],
-    Misc: ["Legit Auto Tool", "Coord Snapper", "Auto Clicker", "Chat Macro", "Auto Eat", "Name Protect", "Auto Replenish", "No Inv Leak", "Auto Reconnect", "Weather Notifier", ["Freecam", "Z"], "Slow Swing", "Spam", "Skin Change"],
-    Donut: ["Anti Vanish", "Netherite Finder", "Player Detection", "Trident Util", "Auto Relog", "Donut NoFall", "Anti Trap", "Donut Speed Mine", "Air Stuck", "Fake Stats", "Spawner Protect", "Spawner Notifier", "Staff List"],
-    Render: ["Fullbright", "Pearl Trajectory", "ESP", "Trajectories", "Glow ESP", "Item ESP", "Nametags", "Xray", "Spawner Nametags", "No Render", "Block ESP", "Time Changer", ["Storage ESP", "J"], "Low Health Warning", ["Freelook", "V"], "Tracers", "Hole ESP"],
-    WizoxClient: ["HUD", "Radar", "Spotify HUD", "Hotkeys", "Region Map", "Performance"],
-    Movement: ["Auto Sprint", "Safe Walk", "Elytra Boost", "No Slow", "Auto Walk", "Step"],
-    Basefinding: ["Player Bypass", "Sus Chunk Finder", "Render Distance Toggle", "Chunk Scanner", "Home Meta", "Prime Chunk Finder", "Quantum", "Block Entity Debug", "Render Util", "Light Debug", "Amethyst Bypass"],
-    Visuals: ["Swing Animation", "Totem Spirit", "Weapon Inspect", "Particles", "3D Hand", "Motion Blur", "Hand Pose", "Atmosphere", "Hand Aura", "Color Grading", "Block Overlay", "Jump Circles", "Custom Fov", "Pharaoh Headdress", "Custom Crosshair", "3D Character", "Custom Glint", "Floating Relics", "Target ESP"],
-    HUD: ["Watermark", "Array List", "Coordinates", "FPS", "Armor HUD", "Potion HUD"],
-  };
-  const enabled = new Set(["Fake Stats", "HUD"]);
-  let current = "Combat", query = "";
   const $ = (id) => document.getElementById(id);
-  const name = (m) => Array.isArray(m) ? m[0] : m;
-  const total = Object.values(MODULES).flat().length;
-
-  function renderGui() {
-    $("gSide").innerHTML = Object.entries(GROUPS).map(([label, cats]) =>
-      `<div class="g-label">${label}</div>` + cats.map((c) =>
-        `<button class="g-cat${c === current && !query ? " on" : ""}" data-cat="${c}"><span class="ic">${ICONS[c]}</span>${c}</button>`).join("")
-    ).join("");
-    if (!query && PANELS[current]) { $("gMods").innerHTML = PANELS[current](); $("activeCount").textContent = `${enabled.size} enabled`; return; }
-    const list = query
-      ? Object.values(MODULES).flat().filter((m) => name(m).toLowerCase().includes(query))
-      : MODULES[current];
-    $("gMods").innerHTML = list.length ? list.map((m) => {
-      const [n, bind] = Array.isArray(m) ? m : [m, ""];
-      return `<button class="g-mod${enabled.has(n) ? " on" : ""}" data-mod="${n}"><span class="nm">${n}</span><span class="bind">${bind}</span><span class="chev">›</span><i class="g-sw"></i></button>`;
-    }).join("") : `<div class="g-empty">No modules match "${query.replace(/[<>&"]/g, "")}"</div>`;
-    $("activeCount").textContent = `${enabled.size} enabled`;
-    $("modCount").textContent = `${total} modules in ${Object.keys(MODULES).length} categories`;
-  }
-  // ----- Client pages -----
-  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const friends = [], profiles = [];
-  const theme = { acc: "#f2f2f5", radius: 10, dim: .25, blur: true, scale: 1, speed: 1, patterns: true };
-  const PRESETS = ["#3b82f6", "#a855f7", "#f43f5e", "#10b981", "#f59e0b", "#f2f2f5"];
-  const slider = (key, label, min, max, step) => `
-    <div class="p-set"><div class="top">${label}<span class="val" id="v-${key}">${Number(theme[key]).toFixed(step < 1 ? 2 : 0)}</span></div>
-    <input type="range" id="r-${key}" data-key="${key}" min="${min}" max="${max}" step="${step}" value="${theme[key]}" aria-label="${label}"></div>`;
-  const PANELS = {
-    Friends: () => `<div class="panel">
-      <div class="p-label">Add friend</div>
-      <div class="p-box"><form class="p-row" id="fForm"><input class="p-in" id="fName" placeholder="Exact username" maxlength="16" autocomplete="off"><button class="p-btn fit strong">Add</button></form></div>
-      <div class="p-label"><span>Friends</span><span>${friends.length} players</span></div>
-      ${friends.length ? friends.map((f, i) => `<div class="p-item"><b>${esc(f)}</b><button class="p-x" data-unfriend="${i}" aria-label="Remove ${esc(f)}">×</button></div>`).join("") : `<div class="p-item p-muted">No friends yet</div>`}
-    </div>`,
-    Theme: () => `<div class="panel two">
-      <div>
-        <div class="p-label">Presets</div>
-        <div class="dots">${PRESETS.map((c) => `<button class="dotc${theme.acc === c ? " on" : ""}" data-acc="${c}" style="background:${c}" aria-label="Accent ${c}"></button>`).join("")}</div>
-        <div class="p-label">Colors</div>
-        <div class="p-item">Accent<span class="swatch"></span></div>
-        <div class="p-label">Layout</div>
-        ${slider("radius", "Corner radius", 0, 16, 1)}
-        ${slider("dim", "Background dim", 0, .8, .05)}
-        <div class="p-item">Menu blur<button class="p-sw${theme.blur ? " on" : ""}" data-flag="blur" aria-label="Menu blur"></button></div>
-      </div>
-      <div>
-        <div class="p-label">Interface</div>
-        ${slider("scale", "UI scale", .8, 1.2, .05)}
-        ${slider("speed", "Animation speed", .5, 2, .1)}
-        <div class="p-item"><b>Animate patterns</b><button class="p-sw${theme.patterns ? " on" : ""}" data-flag="patterns" aria-label="Animate patterns"></button></div>
-        <div class="p-label">Share</div>
-        <div class="p-row"><button class="p-btn" data-act="copy">Copy theme</button><button class="p-btn" data-act="paste">Paste theme</button><button class="p-btn" data-act="reset">Reset</button></div>
-      </div>
-    </div>`,
-    Config: () => `<div class="panel">
-      <div class="p-label"><span>Config</span><span id="cfgState">Saved</span></div>
-      <div class="p-box"><div class="p-row"><button class="p-btn strong" data-act="save">Save all</button><button class="p-btn" data-act="folder">Open folder</button><button class="p-btn" data-act="resetall">Reset all</button></div></div>
-      <div class="p-label">New profile</div>
-      <div class="p-box">
-        <form class="p-row" id="pForm"><input class="p-in" id="pName" placeholder="New profile name" maxlength="24" autocomplete="off"><button class="p-btn fit strong">Create</button></form>
-        <div class="p-row"><button class="p-btn" data-act="import">Import file</button><button class="p-btn" data-act="pastecode">Paste code</button></div>
-      </div>
-      <div class="p-label"><span>Public configs</span><span>1 config</span></div>
-      <div class="p-item"><div><b>Vamp Basefinding Config</b><small>Basefinding setup: finders, freecam and visuals</small></div><button class="p-btn fit strong" data-act="load">Load</button></div>
-      <div class="p-label"><span>Profiles</span><span>${profiles.length} profiles</span></div>
-      ${profiles.length ? profiles.map((p, i) => `<div class="p-item"><b>${esc(p)}</b><button class="p-x" data-unprofile="${i}" aria-label="Delete ${esc(p)}">×</button></div>`).join("") : `<div class="p-item p-muted">No profiles yet</div>`}
-    </div>`,
-  };
-  function applyTheme() {
-    const g = $("gui");
-    g.style.setProperty("--g-acc", theme.acc);
-    g.style.setProperty("--g-r", Math.max(2, theme.radius * .6) + "px");
-    g.style.borderRadius = theme.radius + 2 + "px";
-    g.classList.toggle("noblur", !theme.blur);
-    $("dim").style.opacity = theme.dim;
-    g.style.fontSize = "";
-    g.style.zoom = theme.scale;
-    document.querySelectorAll(".sq").forEach((q) => { q.style.animationPlayState = theme.patterns ? "running" : "paused"; q.style.animationDuration = q.dataset.base / theme.speed + "s"; });
-  }
-  $("gMods").addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (e.target.id === "fForm") {
-      const n = $("fName").value.trim();
-      if (!/^[A-Za-z0-9_]{3,16}$/.test(n)) { toast("Usernames are 3–16 letters, numbers or _"); return; }
-      if (!friends.includes(n)) friends.push(n);
-      renderGui(); toast(`Added ${n}`);
-    }
-    if (e.target.id === "pForm") {
-      const n = $("pName").value.trim();
-      if (!n) { toast("Type a profile name first"); return; }
-      profiles.push(n); renderGui(); toast(`Created profile ${n}`);
-    }
-  });
-  $("gMods").addEventListener("input", (e) => {
-    const k = e.target.dataset.key; if (!k) return;
-    theme[k] = Number(e.target.value);
-    $("v-" + k).textContent = theme[k].toFixed(e.target.step < 1 ? 2 : 0);
-    applyTheme();
-  });
-  $("gMods").addEventListener("click", (e) => {
-    const t = e.target.closest("button"); if (!t || t.type === "submit" && t.closest("form")) return;
-    if (t.dataset.acc) { theme.acc = t.dataset.acc; applyTheme(); renderGui(); }
-    else if (t.dataset.flag) { theme[t.dataset.flag] = !theme[t.dataset.flag]; applyTheme(); renderGui(); }
-    else if (t.dataset.unfriend) { friends.splice(+t.dataset.unfriend, 1); renderGui(); }
-    else if (t.dataset.unprofile) { profiles.splice(+t.dataset.unprofile, 1); renderGui(); }
-    else if (t.dataset.act) {
-      const a = t.dataset.act;
-      if (a === "reset") { Object.assign(theme, { acc: "#f2f2f5", radius: 10, dim: .25, blur: true, scale: 1, speed: 1, patterns: true }); applyTheme(); renderGui(); toast("Theme reset"); }
-      else if (a === "copy") { const code = btoa(JSON.stringify(theme)); navigator.clipboard?.writeText(code).then(() => toast("Theme copied"), () => toast("Theme code: " + code)); }
-      else if (a === "load") { ["Sus Chunk Finder", "Chunk Scanner", "Prime Chunk Finder", "Storage ESP", "Freecam", "Fullbright"].forEach((m) => enabled.add(m)); renderGui(); toast("Loaded Vamp Basefinding Config"); }
-      else if (a === "save") toast("Config saved");
-      else if (a === "resetall") { enabled.clear(); renderGui(); toast("All modules reset"); }
-      else toast("Works in game");
-    }
-  });
-
-  $("gSide").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-cat]"); if (!b) return;
-    current = b.dataset.cat; query = ""; $("gSearch").value = ""; renderGui();
-  });
-  $("gMods").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-mod]"); if (!b) return;
-    const m = b.dataset.mod;
-    enabled.has(m) ? enabled.delete(m) : enabled.add(m);
-    renderGui(); toast(`${m} ${enabled.has(m) ? "enabled" : "disabled"}`);
-  });
-  $("gSearch").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); renderGui(); });
-  addEventListener("keydown", (e) => {
-    if (e.code !== "ShiftRight") return;
-    const g = $("gui"); g.classList.toggle("closed");
-    toast(g.classList.contains("closed") ? "GUI closed" : "GUI opened");
-  });
-  renderGui();
-
-  // Floating squares behind the GUI, like the in-game background.
-  for (let i = 0; i < 14; i++) {
-    const d = document.createElement("div"), size = 20 + Math.random() * 60;
-    d.className = "sq"; d.dataset.base = 18 + Math.random() * 30;
-    Object.assign(d.style, { width: size + "px", height: size + "px", left: Math.random() * 95 + "%", top: Math.random() * 90 + "%",
-      transform: `rotate(${Math.random() * 90}deg)`, animationDuration: d.dataset.base + "s", animationDirection: i % 2 ? "reverse" : "normal" });
-    $("scene").appendChild(d);
-  }
-
-  applyTheme();
-
-  const STRIP = { Combat: ["Crystal Aura", "Auto Totem"], Donut: ["Netherite Finder", "Staff List"], Render: ["Storage ESP", "Xray"], WizoxClient: ["Region Map", "Spotify HUD"] };
-  $("strip").innerHTML = Object.entries(STRIP).map(([c, mods]) => `
-    <a href="#modules" data-jump="${c}">
-      <span class="row">${ICONS[c]}${c}<em>↗</em></span>
-      <small>${mods.join(" · ")}</small>
-    </a>`).join("");
-  $("strip").addEventListener("click", (e) => {
-    const a = e.target.closest("[data-jump]"); if (!a) return;
-    current = a.dataset.jump; query = ""; $("gSearch").value = ""; $("gui").classList.remove("closed"); renderGui();
-  });
 
   // ----- Embers rising behind the hero -----
   (() => {
