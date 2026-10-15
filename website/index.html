@@ -103,12 +103,12 @@
   .closed-hint { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: #b9b9c0; font: 400 13px var(--font-mono); }
 
   /* Replica of the WizoxClient click GUI (neutral greys, white accent) */
-  .gui { --g-bg: rgba(20,20,24,.86); --g-row: rgba(44,44,50,.55); --g-row-h: rgba(58,58,66,.7); --g-line: rgba(255,255,255,.08); --g-text: #e9e9ee; --g-mute: #9a9aa4;
+  .gui { --g-acc: #f2f2f5; --g-r: 6px; --g-bg: rgba(20,20,24,.86); --g-row: rgba(44,44,50,.55); --g-row-h: rgba(58,58,66,.7); --g-line: rgba(255,255,255,.08); --g-text: #e9e9ee; --g-mute: #9a9aa4;
          position: absolute; z-index: 2; left: 3%; right: 3%; top: 4%; bottom: 4%; display: grid; grid-template-rows: auto minmax(0, 1fr);
          background: var(--g-bg); border: 1px solid var(--g-line); border-radius: 12px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
          font-family: var(--font-body); color: var(--g-text); transition: opacity .25s, transform .25s; }
   .gui.closed { opacity: 0; transform: scale(.97); pointer-events: none; }
-  .g-head { position: relative; display: grid; place-items: center; height: 52px; border-bottom: 2px solid #f2f2f5; margin: 0 8px; }
+  .g-head { position: relative; display: grid; place-items: center; height: 52px; border-bottom: 2px solid var(--g-acc); margin: 0 8px; }
   .g-head h4 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
   .g-search { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 170px; height: 30px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--g-line); background: rgba(50,50,58,.6); color: var(--g-text); font: 500 12.5px var(--font-body); }
   .g-search::placeholder { color: var(--g-mute); }
@@ -122,9 +122,9 @@
   .g-cat .ic svg { width: 14px; height: 14px; }
   .g-cat.on { background: var(--g-row-h); }
   .g-cat.on .ic { background: rgba(255,255,255,.16); outline: 1px solid rgba(255,255,255,.25); }
-  .g-cat.on::before { content: ""; position: absolute; left: -6px; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: #fff; }
+  .g-cat.on::before { content: ""; position: absolute; left: -6px; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--g-acc); }
   .g-mods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; align-content: start; overflow: auto; padding-right: 2px; }
-  .g-mod { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border: 0; border-radius: 6px; background: var(--g-row); color: var(--g-text); font: 500 13px var(--font-body); letter-spacing: .01em; text-align: left; cursor: pointer; min-width: 0; }
+  .g-mod { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border: 0; border-radius: var(--g-r); background: var(--g-row); color: var(--g-text); font: 500 13px var(--font-body); letter-spacing: .01em; text-align: left; cursor: pointer; min-width: 0; }
   .g-mod:hover { background: var(--g-row-h); }
   .g-mod .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .g-mod.on .nm { font-weight: 700; color: #fff; }
@@ -132,8 +132,39 @@
   .g-mod .chev { color: var(--g-mute); font-size: 15px; line-height: 1; }
   .g-sw { flex: none; width: 30px; height: 17px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.08); position: relative; transition: background .2s; }
   .g-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #6f6f78; transition: transform .2s, background .2s; }
-  .g-mod.on .g-sw { background: rgba(255,255,255,.32); }
-  .g-mod.on .g-sw::after { transform: translateX(13px); background: #fff; }
+  .g-mod.on .g-sw, .p-sw.on { background: color-mix(in srgb, var(--g-acc) 38%, transparent); }
+  .g-mod.on .g-sw::after, .p-sw.on::after { transform: translateX(13px); background: var(--g-acc); }
+  .gui.noblur { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .dim { position: absolute; inset: 0; z-index: 1; background: #000; opacity: .25; pointer-events: none; transition: opacity .2s; }
+  /* Client pages: Friends / Theme / Config */
+  .panel { grid-column: 1 / -1; display: grid; gap: 8px; align-content: start; }
+  .panel.two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; }
+  .panel.two > div { display: grid; gap: 8px; align-content: start; }
+  .p-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--g-mute); padding: 6px 2px 0; }
+  .p-box { display: grid; gap: 10px; padding: 10px; border-radius: var(--g-r); background: var(--g-row); }
+  .p-row { display: flex; align-items: center; gap: 8px; }
+  .p-row > * { min-width: 0; }
+  .p-in { flex: 1; height: 32px; padding: 0 10px; border-radius: var(--g-r); border: 1px solid var(--g-line); background: rgba(70,70,78,.55); color: var(--g-text); font: 500 13px var(--font-body); }
+  .p-in::placeholder { color: var(--g-mute); }
+  .p-btn { height: 32px; padding: 0 16px; flex: 1; border-radius: var(--g-r); border: 0; background: rgba(70,70,78,.6); color: var(--g-text); font: 500 13px var(--font-body); cursor: pointer; }
+  .p-btn:hover { background: rgba(95,95,105,.7); }
+  .p-btn.fit { flex: 0 0 auto; min-width: 80px; }
+  .p-btn.strong { background: rgba(110,110,120,.7); }
+  .p-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--g-r); background: var(--g-row); font-size: 13px; }
+  .p-item small { display: block; color: var(--g-mute); font-size: 11.5px; }
+  .p-item b { font-weight: 600; }
+  .p-muted { color: var(--g-mute); }
+  .p-x { border: 0; background: none; color: var(--g-mute); cursor: pointer; font-size: 16px; }
+  .dots { display: flex; gap: 14px; padding: 4px 2px; }
+  .dotc { width: 22px; height: 22px; border-radius: 50%; border: 0; cursor: pointer; box-shadow: 0 0 0 2px transparent; }
+  .dotc.on { box-shadow: 0 0 0 2px #1a1a1f, 0 0 0 4px #fff; }
+  .p-set { display: grid; gap: 8px; padding: 10px 12px; border-radius: var(--g-r); background: var(--g-row); font-size: 13px; }
+  .p-set .top { display: flex; justify-content: space-between; align-items: center; }
+  .p-set .val { font: 500 11px var(--font-mono); padding: 2px 7px; border-radius: 5px; background: rgba(255,255,255,.08); }
+  .p-set input[type=range] { width: 100%; accent-color: var(--g-acc); height: 4px; }
+  .swatch { width: 26px; height: 16px; border-radius: 4px; background: var(--g-acc); }
+  .p-sw { flex: none; width: 30px; height: 17px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.08); position: relative; cursor: pointer; padding: 0; transition: background .2s; }
+  .p-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #6f6f78; transition: transform .2s, background .2s; }
   .g-empty { grid-column: 1 / -1; padding: 30px 0; text-align: center; color: var(--g-mute); font-size: 13px; }
   .demo-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 6px 2px; font-size: 12px; color: var(--muted); }
 
@@ -256,6 +287,7 @@
     .g-label { display: none; }
     .g-cat.on::before { display: none; }
     .g-mods { grid-template-columns: minmax(0, 1fr); }
+    .panel.two { grid-template-columns: minmax(0, 1fr); }
     .band { padding: 26px 22px; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -320,6 +352,7 @@
       <div class="demo-bar"><span><span class="dot"></span>WIZOXCLIENT / GUI</span><span id="activeCount">0 enabled</span></div>
       <div class="scene" id="scene">
         <div class="closed-hint">Press <span class="kbd" style="margin:0 6px">R Shift</span> to open</div>
+        <div class="dim" id="dim"></div>
         <div class="gui" id="gui">
           <div class="g-head">
             <h4>WizoxClient</h4>
@@ -493,14 +526,11 @@
     Render: ["Fullbright", "Pearl Trajectory", "ESP", "Trajectories", "Glow ESP", "Item ESP", "Nametags", "Xray", "Spawner Nametags", "No Render", "Block ESP", "Time Changer", ["Storage ESP", "J"], "Low Health Warning", ["Freelook", "V"], "Tracers", "Hole ESP"],
     WizoxClient: ["HUD", "Radar", "Spotify HUD", "Hotkeys", "Region Map", "Performance"],
     Movement: ["Auto Sprint", "Safe Walk", "Elytra Boost", "No Slow", "Auto Walk", "Step"],
-    Basefinding: ["Chunk Finder", "Hole Finder", "Spawner Finder", "Bedrock Finder", "Activated Spawner", "New Chunks"],
-    Visuals: ["Hit Particles", "Motion Blur", "Custom Crosshair", "Item Physics", "Chunk Borders", "Zoom"],
+    Basefinding: ["Player Bypass", "Sus Chunk Finder", "Render Distance Toggle", "Chunk Scanner", "Home Meta", "Prime Chunk Finder", "Quantum", "Block Entity Debug", "Render Util", "Light Debug", "Amethyst Bypass"],
+    Visuals: ["Swing Animation", "Totem Spirit", "Weapon Inspect", "Particles", "3D Hand", "Motion Blur", "Hand Pose", "Atmosphere", "Hand Aura", "Color Grading", "Block Overlay", "Jump Circles", "Custom Fov", "Pharaoh Headdress", "Custom Crosshair", "3D Character", "Custom Glint", "Floating Relics", "Target ESP"],
     HUD: ["Watermark", "Array List", "Coordinates", "FPS", "Armor HUD", "Potion HUD"],
-    Friends: ["Friend List", "Friend Highlight", "Middle Click Friend"],
-    Theme: ["Blur", "Animations", "Rounded Corners", "Custom Font"],
-    Config: ["Auto Save", "Cloud Configs", "Load Default"],
   };
-  const enabled = new Set(["Fake Stats", "HUD", "Blur", "Animations", "Auto Save"]);
+  const enabled = new Set(["Fake Stats", "HUD"]);
   let current = "Combat", query = "";
   const $ = (id) => document.getElementById(id);
   const name = (m) => Array.isArray(m) ? m[0] : m;
@@ -511,6 +541,7 @@
       `<div class="g-label">${label}</div>` + cats.map((c) =>
         `<button class="g-cat${c === current && !query ? " on" : ""}" data-cat="${c}"><span class="ic">${ICONS[c]}</span>${c}</button>`).join("")
     ).join("");
+    if (!query && PANELS[current]) { $("gMods").innerHTML = PANELS[current](); $("activeCount").textContent = `${enabled.size} enabled`; return; }
     const list = query
       ? Object.values(MODULES).flat().filter((m) => name(m).toLowerCase().includes(query))
       : MODULES[current];
@@ -521,6 +552,103 @@
     $("activeCount").textContent = `${enabled.size} enabled`;
     $("modCount").textContent = `${total} modules in ${Object.keys(MODULES).length} categories`;
   }
+  // ----- Client pages -----
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const friends = [], profiles = [];
+  const theme = { acc: "#f2f2f5", radius: 10, dim: .25, blur: true, scale: 1, speed: 1, patterns: true };
+  const PRESETS = ["#3b82f6", "#a855f7", "#f43f5e", "#10b981", "#f59e0b", "#f2f2f5"];
+  const slider = (key, label, min, max, step) => `
+    <div class="p-set"><div class="top">${label}<span class="val" id="v-${key}">${Number(theme[key]).toFixed(step < 1 ? 2 : 0)}</span></div>
+    <input type="range" id="r-${key}" data-key="${key}" min="${min}" max="${max}" step="${step}" value="${theme[key]}" aria-label="${label}"></div>`;
+  const PANELS = {
+    Friends: () => `<div class="panel">
+      <div class="p-label">Add friend</div>
+      <div class="p-box"><form class="p-row" id="fForm"><input class="p-in" id="fName" placeholder="Exact username" maxlength="16" autocomplete="off"><button class="p-btn fit strong">Add</button></form></div>
+      <div class="p-label"><span>Friends</span><span>${friends.length} players</span></div>
+      ${friends.length ? friends.map((f, i) => `<div class="p-item"><b>${esc(f)}</b><button class="p-x" data-unfriend="${i}" aria-label="Remove ${esc(f)}">×</button></div>`).join("") : `<div class="p-item p-muted">No friends yet</div>`}
+    </div>`,
+    Theme: () => `<div class="panel two">
+      <div>
+        <div class="p-label">Presets</div>
+        <div class="dots">${PRESETS.map((c) => `<button class="dotc${theme.acc === c ? " on" : ""}" data-acc="${c}" style="background:${c}" aria-label="Accent ${c}"></button>`).join("")}</div>
+        <div class="p-label">Colors</div>
+        <div class="p-item">Accent<span class="swatch"></span></div>
+        <div class="p-label">Layout</div>
+        ${slider("radius", "Corner radius", 0, 16, 1)}
+        ${slider("dim", "Background dim", 0, .8, .05)}
+        <div class="p-item">Menu blur<button class="p-sw${theme.blur ? " on" : ""}" data-flag="blur" aria-label="Menu blur"></button></div>
+      </div>
+      <div>
+        <div class="p-label">Interface</div>
+        ${slider("scale", "UI scale", .8, 1.2, .05)}
+        ${slider("speed", "Animation speed", .5, 2, .1)}
+        <div class="p-item"><b>Animate patterns</b><button class="p-sw${theme.patterns ? " on" : ""}" data-flag="patterns" aria-label="Animate patterns"></button></div>
+        <div class="p-label">Share</div>
+        <div class="p-row"><button class="p-btn" data-act="copy">Copy theme</button><button class="p-btn" data-act="paste">Paste theme</button><button class="p-btn" data-act="reset">Reset</button></div>
+      </div>
+    </div>`,
+    Config: () => `<div class="panel">
+      <div class="p-label"><span>Config</span><span id="cfgState">Saved</span></div>
+      <div class="p-box"><div class="p-row"><button class="p-btn strong" data-act="save">Save all</button><button class="p-btn" data-act="folder">Open folder</button><button class="p-btn" data-act="resetall">Reset all</button></div></div>
+      <div class="p-label">New profile</div>
+      <div class="p-box">
+        <form class="p-row" id="pForm"><input class="p-in" id="pName" placeholder="New profile name" maxlength="24" autocomplete="off"><button class="p-btn fit strong">Create</button></form>
+        <div class="p-row"><button class="p-btn" data-act="import">Import file</button><button class="p-btn" data-act="pastecode">Paste code</button></div>
+      </div>
+      <div class="p-label"><span>Public configs</span><span>1 config</span></div>
+      <div class="p-item"><div><b>Vamp Basefinding Config</b><small>Basefinding setup: finders, freecam and visuals</small></div><button class="p-btn fit strong" data-act="load">Load</button></div>
+      <div class="p-label"><span>Profiles</span><span>${profiles.length} profiles</span></div>
+      ${profiles.length ? profiles.map((p, i) => `<div class="p-item"><b>${esc(p)}</b><button class="p-x" data-unprofile="${i}" aria-label="Delete ${esc(p)}">×</button></div>`).join("") : `<div class="p-item p-muted">No profiles yet</div>`}
+    </div>`,
+  };
+  function applyTheme() {
+    const g = $("gui");
+    g.style.setProperty("--g-acc", theme.acc);
+    g.style.setProperty("--g-r", Math.max(2, theme.radius * .6) + "px");
+    g.style.borderRadius = theme.radius + 2 + "px";
+    g.classList.toggle("noblur", !theme.blur);
+    $("dim").style.opacity = theme.dim;
+    g.style.fontSize = "";
+    g.style.zoom = theme.scale;
+    document.querySelectorAll(".sq").forEach((q) => { q.style.animationPlayState = theme.patterns ? "running" : "paused"; q.style.animationDuration = q.dataset.base / theme.speed + "s"; });
+  }
+  $("gMods").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (e.target.id === "fForm") {
+      const n = $("fName").value.trim();
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(n)) { toast("Usernames are 3–16 letters, numbers or _"); return; }
+      if (!friends.includes(n)) friends.push(n);
+      renderGui(); toast(`Added ${n}`);
+    }
+    if (e.target.id === "pForm") {
+      const n = $("pName").value.trim();
+      if (!n) { toast("Type a profile name first"); return; }
+      profiles.push(n); renderGui(); toast(`Created profile ${n}`);
+    }
+  });
+  $("gMods").addEventListener("input", (e) => {
+    const k = e.target.dataset.key; if (!k) return;
+    theme[k] = Number(e.target.value);
+    $("v-" + k).textContent = theme[k].toFixed(e.target.step < 1 ? 2 : 0);
+    applyTheme();
+  });
+  $("gMods").addEventListener("click", (e) => {
+    const t = e.target.closest("button"); if (!t || t.type === "submit" && t.closest("form")) return;
+    if (t.dataset.acc) { theme.acc = t.dataset.acc; applyTheme(); renderGui(); }
+    else if (t.dataset.flag) { theme[t.dataset.flag] = !theme[t.dataset.flag]; applyTheme(); renderGui(); }
+    else if (t.dataset.unfriend) { friends.splice(+t.dataset.unfriend, 1); renderGui(); }
+    else if (t.dataset.unprofile) { profiles.splice(+t.dataset.unprofile, 1); renderGui(); }
+    else if (t.dataset.act) {
+      const a = t.dataset.act;
+      if (a === "reset") { Object.assign(theme, { acc: "#f2f2f5", radius: 10, dim: .25, blur: true, scale: 1, speed: 1, patterns: true }); applyTheme(); renderGui(); toast("Theme reset"); }
+      else if (a === "copy") { const code = btoa(JSON.stringify(theme)); navigator.clipboard?.writeText(code).then(() => toast("Theme copied"), () => toast("Theme code: " + code)); }
+      else if (a === "load") { ["Sus Chunk Finder", "Chunk Scanner", "Prime Chunk Finder", "Storage ESP", "Freecam", "Fullbright"].forEach((m) => enabled.add(m)); renderGui(); toast("Loaded Vamp Basefinding Config"); }
+      else if (a === "save") toast("Config saved");
+      else if (a === "resetall") { enabled.clear(); renderGui(); toast("All modules reset"); }
+      else toast("Works in game");
+    }
+  });
+
   $("gSide").addEventListener("click", (e) => {
     const b = e.target.closest("[data-cat]"); if (!b) return;
     current = b.dataset.cat; query = ""; $("gSearch").value = ""; renderGui();
@@ -542,11 +670,13 @@
   // Floating squares behind the GUI, like the in-game background.
   for (let i = 0; i < 14; i++) {
     const d = document.createElement("div"), size = 20 + Math.random() * 60;
-    d.className = "sq";
+    d.className = "sq"; d.dataset.base = 18 + Math.random() * 30;
     Object.assign(d.style, { width: size + "px", height: size + "px", left: Math.random() * 95 + "%", top: Math.random() * 90 + "%",
-      transform: `rotate(${Math.random() * 90}deg)`, animationDuration: 18 + Math.random() * 30 + "s", animationDirection: i % 2 ? "reverse" : "normal" });
+      transform: `rotate(${Math.random() * 90}deg)`, animationDuration: d.dataset.base + "s", animationDirection: i % 2 ? "reverse" : "normal" });
     $("scene").appendChild(d);
   }
+
+  applyTheme();
 
   const STRIP = { Combat: ["Crystal Aura", "Auto Totem"], Donut: ["Netherite Finder", "Staff List"], Render: ["Storage ESP", "Xray"], WizoxClient: ["Region Map", "Spotify HUD"] };
   $("strip").innerHTML = Object.entries(STRIP).map(([c, mods]) => `
