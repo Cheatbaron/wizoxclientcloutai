@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wizox Client</title>
 <meta name="description" content="Wizox Client — a fast, clean Minecraft client.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c5cff'/><text x='16' y='22' font-size='17' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>W</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23ff2d46'/><text x='16' y='22' font-size='17' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>W</text></svg>">
 <style>
   :root {
-    --bg: #0b0d12; --bg-2: #10131a; --panel: #141821; --line: #232a37;
-    --text: #e6e9ef; --muted: #8a93a6; --accent: #7c5cff; --accent-2: #5b8cff;
+    --bg: #0a0708; --bg-2: #0f0a0b; --panel: #151012; --line: #2a1d20;
+    --text: #e6e9ef; --muted: #8a93a6; --accent: #ff2d46; --accent-2: #ff6a3d;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -18,7 +18,7 @@
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
   .grad { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-  nav { position: sticky; top: 0; z-index: 10; background: rgba(11,13,18,.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(10,7,8,.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
   nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
   .logo { font-weight: 800; font-size: 20px; letter-spacing: .5px; }
   .links { display: flex; gap: 28px; align-items: center; font-size: 15px; color: var(--muted); }
@@ -26,12 +26,15 @@
 
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font-weight: 600; border: 1px solid transparent; transition: transform .15s, filter .15s; cursor: pointer; }
   .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
-  .btn.primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 8px 30px -8px rgba(124,92,255,.6); }
+  .btn.primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 8px 30px -8px rgba(255,45,70,.6); }
   .btn.ghost { border-color: var(--line); background: var(--panel); }
   .btn.small { padding: 8px 16px; font-size: 14px; }
 
+  #fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero h1 .grad { filter: drop-shadow(0 0 28px rgba(255,45,70,.45)); }
+  .hero > .wrap { position: relative; }
   .hero { position: relative; padding: 110px 0 90px; text-align: center; overflow: hidden; }
-  .hero::before { content: ""; position: absolute; inset: -40% 10% auto; height: 600px; background: radial-gradient(closest-side, rgba(124,92,255,.28), transparent); pointer-events: none; }
+  .hero::before { content: ""; position: absolute; inset: -40% 10% auto; height: 600px; background: radial-gradient(closest-side, rgba(255,45,70,.28), transparent); pointer-events: none; }
   .badge { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--muted); background: var(--panel); margin-bottom: 22px; }
   .hero h1 { position: relative; font-size: clamp(40px, 7vw, 72px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -1.5px; }
   .hero p { position: relative; font-size: 19px; color: var(--muted); max-width: 600px; margin: 0 auto 34px; }
@@ -48,22 +51,22 @@
 
   .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
   .feature { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 26px; transition: border-color .2s; }
-  .feature:hover { border-color: rgba(124,92,255,.5); }
-  .icon { width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; background: rgba(124,92,255,.15); color: var(--accent); margin-bottom: 16px; }
+  .feature:hover { border-color: rgba(255,45,70,.5); }
+  .icon { width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,45,70,.15); color: var(--accent); margin-bottom: 16px; }
   .icon svg { width: 22px; height: 22px; }
   .feature h3 { margin: 0 0 6px; font-size: 18px; }
   .feature p { margin: 0; color: var(--muted); font-size: 15px; }
 
   .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; align-items: stretch; }
   .plan { position: relative; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 30px; }
-  .plan.best { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 20px 50px -20px rgba(124,92,255,.5); }
+  .plan.best { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 20px 50px -20px rgba(255,45,70,.5); }
   .plan .tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
   .plan h3 { margin: 0 0 4px; font-size: 18px; }
   .plan .price { font-size: 44px; font-weight: 800; margin: 12px 0 2px; }
   .plan .price span { font-size: 16px; color: var(--muted); font-weight: 500; }
   .plan ul { list-style: none; padding: 0; margin: 20px 0 28px; color: var(--muted); font-size: 15px; flex: 1; }
   .plan li { padding: 6px 0 6px 26px; position: relative; }
-  .plan li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 14px; border-radius: 50%; background: rgba(124,92,255,.2) url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 8.5l2.5 2.5L12 5.5' stroke='%237c5cff' stroke-width='2' fill='none' stroke-linecap='round'/></svg>") center/12px no-repeat; }
+  .plan li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,45,70,.2) url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 8.5l2.5 2.5L12 5.5' stroke='%23ff2d46' stroke-width='2' fill='none' stroke-linecap='round'/></svg>") center/12px no-repeat; }
   .plan .btn { width: 100%; }
   .note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 24px; }
 
@@ -75,7 +78,7 @@
   details[open] summary::after { content: "–"; }
   details p { color: var(--muted); margin: 12px 0 0; }
 
-  .banner { text-align: center; background: linear-gradient(135deg, rgba(124,92,255,.18), rgba(91,140,255,.08)); border: 1px solid var(--line); border-radius: 20px; padding: 56px 24px; }
+  .banner { text-align: center; background: linear-gradient(135deg, rgba(255,45,70,.18), rgba(255,106,61,.06)); border: 1px solid var(--line); border-radius: 20px; padding: 56px 24px; }
   .banner h2 { margin: 0 0 10px; font-size: 32px; }
   .banner p { color: var(--muted); margin: 0 0 26px; }
 
@@ -107,6 +110,7 @@
 </nav>
 
 <header class="hero">
+  <canvas id="fx"></canvas>
   <div class="wrap">
     <div class="badge" data-text="version">Minecraft 1.21 · Fabric</div>
     <h1>Play smoother with<br><span class="grad">Wizox Client</span></h1>
@@ -243,6 +247,31 @@
   document.querySelectorAll("[data-buy]").forEach((a) => {
     a.href = LINKS[a.dataset.buy]; a.target = "_blank"; a.rel = "noopener";
   });
+  // Floating red particles behind the hero.
+  (() => {
+    const c = document.getElementById("fx"), ctx = c.getContext("2d");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let w, h, dots;
+    const resize = () => {
+      const dpr = devicePixelRatio || 1;
+      w = c.offsetWidth; h = c.offsetHeight;
+      c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dots = Array.from({ length: Math.round(w / 18) }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        r: Math.random() * 1.8 + .4, v: Math.random() * .35 + .1, a: Math.random() * .6 + .2,
+      }));
+    };
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const d of dots) {
+        d.y -= d.v; if (d.y < -5) { d.y = h + 5; d.x = Math.random() * w; }
+        ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,60,80,${d.a})`; ctx.shadowColor = "#ff2d46"; ctx.shadowBlur = 8; ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    };
+    addEventListener("resize", resize); resize(); tick();
+  })();
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
 </body>
