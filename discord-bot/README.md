@@ -10,7 +10,7 @@ Adds an admin-only `/announce` slash command that posts a message and a link wit
 
 ```sh
 npm install
-DISCORD_TOKEN=... CLIENT_ID=... GUILD_ID=... npm start
+DISCORD_TOKEN=... npm start
 ```
 
 ## Usage

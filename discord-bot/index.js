@@ -3,13 +3,11 @@ import {
   GatewayIntentBits,
   PermissionFlagsBits,
   SlashCommandBuilder,
-  REST,
-  Routes,
 } from 'discord.js';
 
-const { DISCORD_TOKEN, CLIENT_ID, GUILD_ID } = process.env;
-if (!DISCORD_TOKEN || !CLIENT_ID || !GUILD_ID) {
-  console.error('Set DISCORD_TOKEN, CLIENT_ID and GUILD_ID environment variables.');
+const { DISCORD_TOKEN } = process.env;
+if (!DISCORD_TOKEN) {
+  console.error('Set the DISCORD_TOKEN environment variable.');
   process.exit(1);
 }
 
@@ -21,14 +19,17 @@ const announce = new SlashCommandBuilder()
   // Only members who can already mention @everyone see and can use the command.
   .setDefaultMemberPermissions(PermissionFlagsBits.MentionEveryone);
 
-await new REST().setToken(DISCORD_TOKEN).put(
-  Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-  { body: [announce.toJSON()] },
-);
-
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-client.once('ready', () => console.log(`Logged in as ${client.user.tag}`));
+// Guild commands show up instantly, unlike global ones.
+const registerCommands = (guild) => guild.commands.set([announce.toJSON()]);
+
+client.once('ready', async () => {
+  await Promise.all(client.guilds.cache.map(registerCommands));
+  console.log(`Logged in as ${client.user.tag} in ${client.guilds.cache.size} server(s)`);
+});
+
+client.on('guildCreate', registerCommands);
 
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand() || interaction.commandName !== 'announce') return;
