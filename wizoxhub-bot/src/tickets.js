@@ -77,19 +77,12 @@ async function panelMessage() {
     .map((k) => `${TYPES[k].emoji} **${TYPES[k].label}** — ${TYPES[k].desc}`)
     .join("\n");
 
+  // The dropdown sits right under the banner. Discord opens a dropdown upward when it's near the
+  // bottom of the screen, so keeping the list and buttons below it gives it room to open downward.
   const box = new ContainerBuilder()
     .setAccentColor(RED)
     .addMediaGalleryComponents(new MediaGalleryBuilder().addItems((i) => i.setURL("attachment://tickets.png")))
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`**categories**\n${list}\n> please state what you need help with when opening a ticket`),
-    )
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
     .addActionRowComponents(
-      new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId("ticket:hwid").setLabel("hwid reset").setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId("ticket:transfer").setLabel("key transfer").setStyle(ButtonStyle.Secondary),
-      ),
       new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId("ticket:select")
@@ -102,6 +95,17 @@ async function panelMessage() {
               emoji: emojiObject(TYPES[k].emoji),
             })),
           ),
+      ),
+    )
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(`**categories**\n${list}\n> please state what you need help with when opening a ticket`),
+    )
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+    .addActionRowComponents(
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId("ticket:hwid").setLabel("hwid reset").setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("ticket:transfer").setLabel("key transfer").setStyle(ButtonStyle.Secondary),
       ),
     );
 
