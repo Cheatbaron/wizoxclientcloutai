@@ -77,7 +77,7 @@ client.on(Events.GuildMemberAdd, (member) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "testwelcome") return;
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   try {
     await sendWelcome(interaction.member);
     await interaction.editReply(`Sent a test welcome to <#${WELCOME_CHANNEL_ID}>.`);
