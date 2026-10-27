@@ -35,8 +35,8 @@ async function buildWelcome(member) {
     .setDescription(`**Welcome** ${member}`)
     .setFooter({ text: `Member #${member.guild.memberCount}` });
 
-  // The mention in `content` is what actually pings them; mentions inside embeds don't.
-  return { content: `${member}`, embeds: [embed], files: [file], allowedMentions: { users: [member.id] } };
+  // Only the mention inside the embed, like the example. Embed mentions show as a tag but don't send a ping.
+  return { embeds: [embed], files: [file] };
 }
 
 async function sendWelcome(member) {
