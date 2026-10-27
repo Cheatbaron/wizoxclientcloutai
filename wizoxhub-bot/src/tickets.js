@@ -23,8 +23,8 @@ const { SUPPORT_ROLE_ID, TICKET_CATEGORY_ID, TICKET_LOG_CHANNEL_ID } = process.e
 // To use your own server emojis, replace an emoji with "<:name:id>".
 const TYPES = {
   question: { label: "question", emoji: "❔", desc: "get help with a product", category: "1564665096775667803" },
-  robux: { label: "robux", emoji: "<:robux:1509555815701549096>", desc: "buy a key with robux", category: "1564665176374907070" },
-  payment: { label: "payment help", emoji: "<:paymenthelp:1509555830637461674>", desc: "payment related questions", category: "1564665230766637126" },
+  robux: { label: "robux", emoji: "<:robux:1564666435299446836>", desc: "buy a key with robux", category: "1564665176374907070" },
+  payment: { label: "payment help", emoji: "<:paymenthelp:1564666433286176909>", desc: "payment related questions", category: "1564665230766637126" },
   hwid: { label: "hwid reset", emoji: "🔄", desc: "reset the PC your key is locked to", category: "1564665271065645066" },
   transfer: { label: "key transfer", emoji: "🔑", desc: "move your key to another account", category: "1564665318041722931" },
 };
