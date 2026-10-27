@@ -63,3 +63,11 @@ Add to `.env`:
 
 The bot needs **Manage Channels** and **Manage Roles** for tickets. Use your own server emojis by editing
 `TYPES` at the top of `src/tickets.js` (e.g. `emoji: "<:robux:123456789>"`).
+
+## Auto role
+
+Everyone who joins gets the role in `AUTO_ROLE_ID` (default: your Members role). If your server makes people
+accept the rules first, they get it right after accepting.
+
+For this to work the bot needs **Manage Roles**, and in **Server Settings → Roles** the bot's role must be
+dragged **above** the Members role.

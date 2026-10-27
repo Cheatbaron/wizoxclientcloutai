@@ -22,6 +22,9 @@ if (!DISCORD_TOKEN || !WELCOME_CHANNEL_ID) {
 
 const RED = 0xff2e43;
 
+// Role everyone gets when they join. Set AUTO_ROLE_ID in .env to change it.
+const AUTO_ROLE_ID = process.env.AUTO_ROLE_ID || "1553730473593798708";
+
 const client = new Client({
   // GuildMembers is needed to see people join. Turn on "Server Members Intent"
   // in the Developer Portal → Bot page, or the bot won't receive joins.
@@ -73,8 +76,26 @@ client.once(Events.ClientReady, async (c) => {
   }
 });
 
+async function giveAutoRole(member) {
+  if (!AUTO_ROLE_ID || member.roles.cache.has(AUTO_ROLE_ID)) return;
+  try {
+    await member.roles.add(AUTO_ROLE_ID, "Auto role on join");
+  } catch (e) {
+    console.error(
+      `Couldn't give the auto role to ${member.user.tag}: ${e.message}\n` +
+        "Check that the bot has Manage Roles and that its own role is ABOVE the member role in Server Settings → Roles.",
+    );
+  }
+}
+
 client.on(Events.GuildMemberAdd, (member) => {
   sendWelcome(member).catch((e) => console.error("Welcome failed:", e));
+  // Servers with a rules screen: wait until they accept it (handled below).
+  if (!member.pending) giveAutoRole(member);
+});
+
+client.on(Events.GuildMemberUpdate, (before, after) => {
+  if (before.pending && !after.pending) giveAutoRole(after);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
