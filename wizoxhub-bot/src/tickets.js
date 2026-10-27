@@ -21,12 +21,18 @@ const { SUPPORT_ROLE_ID, TICKET_CATEGORY_ID, TICKET_LOG_CHANNEL_ID } = process.e
 
 // Ticket types. To use your own server emojis, replace an emoji with "<:name:id>".
 const TYPES = {
-  question: { label: "question", emoji: "❓", desc: "get help with a product" },
-  robux: { label: "robux", emoji: "🪙", desc: "buy a key with robux" },
-  payment: { label: "payment help", emoji: "💳", desc: "payment related questions" },
+  question: { label: "question", emoji: "❔", desc: "get help with a product" },
+  robux: { label: "robux", emoji: "<:robux:1509555815701549096>", desc: "buy a key with robux" },
+  payment: { label: "payment help", emoji: "<:paymenthelp:1509555830637461674>", desc: "payment related questions" },
   hwid: { label: "hwid reset", emoji: "🔄", desc: "reset the PC your key is locked to" },
   transfer: { label: "key transfer", emoji: "🔑", desc: "move your key to another account" },
 };
+
+// Dropdown options need emojis as { id, name } (custom) or { name } (normal).
+function emojiObject(e) {
+  const m = e.match(/^<(a?):(\w+):(\d+)>$/);
+  return m ? { id: m[3], name: m[2], animated: m[1] === "a" } : { name: e };
+}
 
 export const ticketCommands = [
   new SlashCommandBuilder()
@@ -92,7 +98,7 @@ async function panelMessage() {
               label: TYPES[k].label.toUpperCase(),
               description: TYPES[k].desc,
               value: k,
-              emoji: TYPES[k].emoji,
+              emoji: emojiObject(TYPES[k].emoji),
             })),
           ),
       ),
