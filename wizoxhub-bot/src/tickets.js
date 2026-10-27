@@ -19,13 +19,14 @@ import {
 const RED = 0xff2e43;
 const { SUPPORT_ROLE_ID, TICKET_CATEGORY_ID, TICKET_LOG_CHANNEL_ID } = process.env;
 
-// Ticket types. To use your own server emojis, replace an emoji with "<:name:id>".
+// Ticket types. `category` is the category ID each kind of ticket goes into.
+// To use your own server emojis, replace an emoji with "<:name:id>".
 const TYPES = {
-  question: { label: "question", emoji: "❔", desc: "get help with a product" },
-  robux: { label: "robux", emoji: "<:robux:1509555815701549096>", desc: "buy a key with robux" },
-  payment: { label: "payment help", emoji: "<:paymenthelp:1509555830637461674>", desc: "payment related questions" },
-  hwid: { label: "hwid reset", emoji: "🔄", desc: "reset the PC your key is locked to" },
-  transfer: { label: "key transfer", emoji: "🔑", desc: "move your key to another account" },
+  question: { label: "question", emoji: "❔", desc: "get help with a product", category: "1564665096775667803" },
+  robux: { label: "robux", emoji: "<:robux:1509555815701549096>", desc: "buy a key with robux", category: "1564665176374907070" },
+  payment: { label: "payment help", emoji: "<:paymenthelp:1509555830637461674>", desc: "payment related questions", category: "1564665230766637126" },
+  hwid: { label: "hwid reset", emoji: "🔄", desc: "reset the PC your key is locked to", category: "1564665271065645066" },
+  transfer: { label: "key transfer", emoji: "🔑", desc: "move your key to another account", category: "1564665318041722931" },
 };
 
 // Dropdown options need emojis as { id, name } (custom) or { name } (normal).
@@ -138,15 +139,16 @@ async function openTicket(interaction, type) {
     });
   }
 
-  // Only use TICKET_CATEGORY_ID if it really is a category; otherwise put tickets at the top level.
+  // Each ticket type has its own category; TICKET_CATEGORY_ID is the fallback.
+  // Anything that isn't a real category is skipped so the ticket still opens.
+  const t = TYPES[type];
   let parent = null;
-  if (TICKET_CATEGORY_ID) {
-    const cat = channels.get(TICKET_CATEGORY_ID);
-    if (cat?.type === ChannelType.GuildCategory) parent = cat.id;
-    else console.warn(`TICKET_CATEGORY_ID ${TICKET_CATEGORY_ID} is not a category. Right-click a category (not a channel) → Copy Category ID.`);
+  for (const id of [t.category, TICKET_CATEGORY_ID].filter(Boolean)) {
+    const cat = channels.get(id);
+    if (cat?.type === ChannelType.GuildCategory) { parent = cat.id; break; }
+    console.warn(`${id} is not a category in ${guild.name}. Right-click a category (not a channel) → Copy Category ID.`);
   }
 
-  const t = TYPES[type];
   const channel = await guild.channels.create({
     name: `${type}-${safeName(user)}`,
     type: ChannelType.GuildText,
