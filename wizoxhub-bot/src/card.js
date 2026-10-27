@@ -1,7 +1,7 @@
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 
 const W = 1200;
-const H = 480;
+const H = 440;
 
 // Same random-looking layout every time, so cards don't flicker between joins.
 function seeded(seed) {
@@ -88,7 +88,7 @@ export async function welcomeCard(avatar) {
 
   const cx = W / 2;
   const cy = H / 2;
-  const r = 150;
+  const r = 128;
   rings(ctx, cx, cy, r);
 
   // Glow behind the avatar.

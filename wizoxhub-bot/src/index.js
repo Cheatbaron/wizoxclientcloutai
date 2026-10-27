@@ -2,11 +2,14 @@ import "dotenv/config";
 import {
   AttachmentBuilder,
   Client,
-  EmbedBuilder,
+  ContainerBuilder,
   Events,
   GatewayIntentBits,
+  MediaGalleryBuilder,
+  MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  TextDisplayBuilder,
 } from "discord.js";
 import { welcomeCard } from "./card.js";
 
@@ -29,14 +32,21 @@ async function buildWelcome(member) {
   const avatar = Buffer.from(await (await fetch(avatarUrl)).arrayBuffer());
   const file = new AttachmentBuilder(await welcomeCard(avatar), { name: "welcome.png" });
 
-  const embed = new EmbedBuilder()
-    .setColor(RED)
-    .setImage("attachment://welcome.png")
-    .setDescription(`**Welcome** ${member}`)
-    .setFooter({ text: `Member #${member.guild.memberCount}` });
+  // Discord's newer message layout: a red-edged box with the big card on top and the text under it.
+  const box = new ContainerBuilder()
+    .setAccentColor(RED)
+    .addMediaGalleryComponents(new MediaGalleryBuilder().addItems((item) => item.setURL("attachment://welcome.png")))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(`**Welcome** ${member}`),
+      new TextDisplayBuilder().setContent(`-# Member #${member.guild.memberCount}`),
+    );
 
-  // Only the mention inside the embed, like the example. Embed mentions show as a tag but don't send a ping.
-  return { embeds: [embed], files: [file] };
+  return {
+    components: [box],
+    files: [file],
+    flags: MessageFlags.IsComponentsV2,
+    allowedMentions: { users: [member.id] },
+  };
 }
 
 async function sendWelcome(member) {
