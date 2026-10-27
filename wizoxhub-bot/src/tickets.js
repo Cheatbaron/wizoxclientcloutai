@@ -132,11 +132,19 @@ async function openTicket(interaction, type) {
     });
   }
 
+  // Only use TICKET_CATEGORY_ID if it really is a category; otherwise put tickets at the top level.
+  let parent = null;
+  if (TICKET_CATEGORY_ID) {
+    const cat = channels.get(TICKET_CATEGORY_ID);
+    if (cat?.type === ChannelType.GuildCategory) parent = cat.id;
+    else console.warn(`TICKET_CATEGORY_ID ${TICKET_CATEGORY_ID} is not a category. Right-click a category (not a channel) → Copy Category ID.`);
+  }
+
   const t = TYPES[type];
   const channel = await guild.channels.create({
     name: `${type}-${safeName(user)}`,
     type: ChannelType.GuildText,
-    parent: TICKET_CATEGORY_ID || null,
+    parent,
     topic: `${t.label} ticket · ticket-owner:${user.id}`,
     permissionOverwrites: overwrites,
   });
