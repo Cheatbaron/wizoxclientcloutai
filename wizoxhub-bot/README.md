@@ -45,3 +45,21 @@ a VPS, Railway or a Raspberry Pi.
 - Message text and embed colour: `buildWelcome` in `src/index.js`
 - See the card without Discord: `npm run preview` (saves `preview.png`; add a path to test your own avatar,
   e.g. `npm run preview my-avatar.png`)
+
+## Tickets
+
+`/ticketpanel` (Manage Server only) posts the support panel in the channel you type it in:
+a banner, the categories, **hwid reset** / **key transfer** buttons and a dropdown for
+**question / robux / payment help**.
+
+Picking one creates a private channel only the member, your support role and the bot can see,
+with a **Close ticket** button. Each member can have one open ticket at a time.
+
+Add to `.env`:
+
+- `SUPPORT_ROLE_ID` – the staff role that answers tickets
+- `TICKET_CATEGORY_ID` – optional, category the ticket channels go in
+- `TICKET_LOG_CHANNEL_ID` – optional, where closed tickets are noted
+
+The bot needs **Manage Channels** and **Manage Roles** for tickets. Use your own server emojis by editing
+`TYPES` at the top of `src/tickets.js` (e.g. `emoji: "<:robux:123456789>"`).
