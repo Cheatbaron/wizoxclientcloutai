@@ -10,8 +10,8 @@ if (!avatar) {
   const c = createCanvas(256, 256);
   const ctx = c.getContext("2d");
   const g = ctx.createLinearGradient(0, 0, 256, 256);
-  g.addColorStop(0, "#6fb7ff");
-  g.addColorStop(1, "#2f7bff");
+  g.addColorStop(0, "#ff7a6b");
+  g.addColorStop(1, "#ff2e43");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
   ctx.fillStyle = "#fff";

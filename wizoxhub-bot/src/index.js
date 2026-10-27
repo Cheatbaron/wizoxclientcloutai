@@ -16,7 +16,7 @@ if (!DISCORD_TOKEN || !WELCOME_CHANNEL_ID) {
   process.exit(1);
 }
 
-const BLUE = 0x2f7bff;
+const RED = 0xff2e43;
 
 const client = new Client({
   // GuildMembers is needed to see people join. Turn on "Server Members Intent"
@@ -25,12 +25,12 @@ const client = new Client({
 });
 
 async function buildWelcome(member) {
-  const avatarUrl = member.user.displayAvatarURL({ extension: "png", size: 256, forceStatic: true });
+  const avatarUrl = member.user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true });
   const avatar = Buffer.from(await (await fetch(avatarUrl)).arrayBuffer());
   const file = new AttachmentBuilder(await welcomeCard(avatar), { name: "welcome.png" });
 
   const embed = new EmbedBuilder()
-    .setColor(BLUE)
+    .setColor(RED)
     .setImage("attachment://welcome.png")
     .setDescription(`**Welcome** ${member}`)
     .setFooter({ text: `Member #${member.guild.memberCount}` });

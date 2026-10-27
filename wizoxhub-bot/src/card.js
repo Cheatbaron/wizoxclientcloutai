@@ -1,7 +1,7 @@
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 
-const W = 1024;
-const H = 380;
+const W = 1200;
+const H = 480;
 
 // Same random-looking layout every time, so cards don't flicker between joins.
 function seeded(seed) {
@@ -13,20 +13,20 @@ function seeded(seed) {
 }
 
 function background(ctx) {
-  ctx.fillStyle = "#050914";
+  ctx.fillStyle = "#0c0405";
   ctx.fillRect(0, 0, W, H);
 
-  // Blue nebula on the right, fading into the dark left side.
+  // Red nebula on the right, fading into the dark left side.
   const blobs = [
-    [W * 0.8, H * 0.5, 460, "rgba(47,123,255,0.85)"],
-    [W * 1.0, H * 0.25, 300, "rgba(111,183,255,0.6)"],
-    [W * 0.62, H * 0.85, 300, "rgba(40,90,220,0.5)"],
-    [W * 0.15, H * 0.5, 260, "rgba(30,60,160,0.25)"],
+    [W * 0.8, H * 0.5, 520, "rgba(255,46,67,0.75)"],
+    [W * 1.0, H * 0.25, 340, "rgba(255,110,90,0.5)"],
+    [W * 0.62, H * 0.85, 340, "rgba(170,20,40,0.55)"],
+    [W * 0.15, H * 0.5, 300, "rgba(140,15,30,0.25)"],
   ];
   for (const [x, y, r, c] of blobs) {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, c);
-    g.addColorStop(1, "rgba(5,9,20,0)");
+    g.addColorStop(1, "rgba(12,4,5,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
@@ -37,15 +37,15 @@ function background(ctx) {
   for (let i = 0; i < 6; i++) {
     const y = H * (0.25 + rand() * 0.5);
     const g = ctx.createLinearGradient(0, y, W, y);
-    g.addColorStop(0, "rgba(111,183,255,0)");
-    g.addColorStop(0.7, `rgba(111,183,255,${0.05 + rand() * 0.08})`);
-    g.addColorStop(1, "rgba(111,183,255,0)");
+    g.addColorStop(0, "rgba(255,120,120,0)");
+    g.addColorStop(0.7, `rgba(255,120,120,${0.05 + rand() * 0.08})`);
+    g.addColorStop(1, "rgba(255,120,120,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, y - 1 - rand() * 3, W, 2 + rand() * 6);
   }
 
   // Stars.
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 120; i++) {
     ctx.fillStyle = `rgba(255,255,255,${0.15 + rand() * 0.6})`;
     ctx.beginPath();
     ctx.arc(rand() * W, rand() * H, rand() * 1.3 + 0.3, 0, Math.PI * 2);
@@ -55,20 +55,20 @@ function background(ctx) {
 }
 
 function rings(ctx, cx, cy, r) {
-  for (const [extra, alpha] of [[22, 0.35], [50, 0.18], [86, 0.08]]) {
-    ctx.strokeStyle = `rgba(160,200,255,${alpha})`;
+  for (const [extra, alpha] of [[26, 0.35], [60, 0.18], [100, 0.08]]) {
+    ctx.strokeStyle = `rgba(255,170,170,${alpha})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(cx, cy, r + extra, 0, Math.PI * 2);
     ctx.stroke();
   }
   // Two little glowing dots on the rings.
-  for (const [extra, angle] of [[50, -0.35], [86, 0.55]]) {
+  for (const [extra, angle] of [[60, -0.35], [100, 0.55]]) {
     const x = cx + Math.cos(angle) * (r + extra);
     const y = cy + Math.sin(angle) * (r + extra);
-    ctx.shadowColor = "#6fb7ff";
+    ctx.shadowColor = "#ff2e43";
     ctx.shadowBlur = 14;
-    ctx.fillStyle = "#d8ecff";
+    ctx.fillStyle = "#ffe0e0";
     ctx.beginPath();
     ctx.arc(x, y, 3.5, 0, Math.PI * 2);
     ctx.fill();
@@ -88,17 +88,17 @@ export async function welcomeCard(avatar) {
 
   const cx = W / 2;
   const cy = H / 2;
-  const r = 92;
+  const r = 150;
   rings(ctx, cx, cy, r);
 
   // Glow behind the avatar.
   const glow = ctx.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 1.9);
-  glow.addColorStop(0, "rgba(111,183,255,0.45)");
-  glow.addColorStop(1, "rgba(111,183,255,0)");
+  glow.addColorStop(0, "rgba(255,60,80,0.5)");
+  glow.addColorStop(1, "rgba(255,60,80,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
-  // Avatar in a circle with a white-blue border.
+  // Avatar in a circle with a white-red border.
   const img = await loadImage(avatar);
   ctx.save();
   ctx.beginPath();
@@ -108,19 +108,19 @@ export async function welcomeCard(avatar) {
   ctx.restore();
 
   const border = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-  border.addColorStop(0, "#d8ecff");
-  border.addColorStop(1, "#2f7bff");
+  border.addColorStop(0, "#ffe0e0");
+  border.addColorStop(1, "#ff2e43");
   ctx.strokeStyle = border;
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 8;
   ctx.beginPath();
-  ctx.arc(cx, cy, r + 3, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
   ctx.stroke();
 
   // Rounded corners so it sits nicely inside the Discord embed.
   const out = createCanvas(W, H);
   const o = out.getContext("2d");
   o.beginPath();
-  o.roundRect(0, 0, W, H, 24);
+  o.roundRect(0, 0, W, H, 28);
   o.clip();
   o.drawImage(canvas, 0, 0);
   return out.encode("png");
