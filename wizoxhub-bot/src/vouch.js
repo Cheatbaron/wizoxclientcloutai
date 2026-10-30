@@ -13,7 +13,7 @@ import {
 } from "discord.js";
 
 const { VOUCH_CHANNEL_ID, VOUCH_SITE } = process.env;
-const BLUE = 0x5865f2;
+const RED = 0xff2e43;
 
 const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../data");
 const DATA_FILE = resolve(DATA_DIR, "vouches.json");
@@ -44,7 +44,7 @@ function vouchEmbed({ title, text, rating }, user) {
   if (rating) lines.push("", `**Rating:** ${rating}/10`);
   lines.push(`-# by ${user}`);
 
-  const embed = new EmbedBuilder().setColor(BLUE).setTitle(title).setDescription(lines.join("\n"));
+  const embed = new EmbedBuilder().setColor(RED).setTitle(title).setDescription(lines.join("\n"));
   const url = siteUrl();
   if (url) {
     // A title with a link shows up blue, like in the screenshot.
@@ -145,7 +145,7 @@ async function vouchStats(interaction) {
   const avg = rated.length ? (rated.reduce((s, v) => s + v.rating, 0) / rated.length).toFixed(1) : null;
 
   const embed = new EmbedBuilder()
-    .setColor(BLUE)
+    .setColor(RED)
     .setTitle("Vouches")
     .setDescription(
       list.length
