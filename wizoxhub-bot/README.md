@@ -76,7 +76,7 @@ dragged **above** the Members role.
 
 `/vouch` opens a form (title, review, rating out of 10). The bot then posts it as a review card in your vouch channel.
 
-Staff (Manage Server) can post a vouch for a buyer with `/vouch for:@buyer`. The card says "by @buyer · posted by @staff".
+Staff (Manage Server) can post a vouch for a buyer with `/vouch for:@buyer`. The card says "by @buyer".
 
 - `/vouchstats` – total vouches and average rating
 - `/removevouch @user` – admins only, deletes that user's vouches (and their messages)

@@ -39,10 +39,10 @@ function siteUrl() {
   return VOUCH_SITE.startsWith("http") ? VOUCH_SITE : `https://${VOUCH_SITE}`;
 }
 
-function vouchEmbed({ title, text, rating }, user, postedBy) {
+function vouchEmbed({ title, text, rating }, user) {
   const lines = [text];
   if (rating) lines.push("", `**Rating:** ${rating}/10`);
-  lines.push(postedBy ? `-# by ${user} · posted by ${postedBy}` : `-# by ${user}`);
+  lines.push(`-# by ${user}`);
 
   const embed = new EmbedBuilder().setColor(RED).setTitle(title).setDescription(lines.join("\n"));
   const url = siteUrl();
@@ -152,7 +152,7 @@ async function submitVouch(interaction) {
   }
 
   const vouch = { title, text, rating };
-  const msg = await channel.send({ embeds: [vouchEmbed(vouch, author, postedBy)], allowedMentions: { parse: [] } });
+  const msg = await channel.send({ embeds: [vouchEmbed(vouch, author)], allowedMentions: { parse: [] } });
 
   const list = load();
   list.push({ from: author.id, ...(postedBy && { postedBy: postedBy.id }), ...vouch, at: Date.now(), channelId: channel.id, messageId: msg.id });
