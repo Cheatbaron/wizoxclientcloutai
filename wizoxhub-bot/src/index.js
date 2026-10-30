@@ -13,6 +13,7 @@ import {
 } from "discord.js";
 import { welcomeCard } from "./card.js";
 import { handleTicketInteraction, ticketCommands } from "./tickets.js";
+import { handleVouchInteraction, vouchCommands } from "./vouch.js";
 
 const { DISCORD_TOKEN, WELCOME_CHANNEL_ID } = process.env;
 if (!DISCORD_TOKEN || !WELCOME_CHANNEL_ID) {
@@ -70,7 +71,7 @@ const testCommand = new SlashCommandBuilder()
 client.once(Events.ClientReady, async (c) => {
   console.log(`Wizoxhub is online as ${c.user.tag}`);
   // Guild commands show up instantly, unlike global ones.
-  const commands = [testCommand, ...ticketCommands].map((cmd) => cmd.toJSON());
+  const commands = [testCommand, ...ticketCommands, ...vouchCommands].map((cmd) => cmd.toJSON());
   for (const guild of c.guilds.cache.values()) {
     await guild.commands.set(commands).catch((e) => console.error(`Couldn't add commands in ${guild.name}:`, e.message));
   }
@@ -99,6 +100,7 @@ client.on(Events.GuildMemberUpdate, (before, after) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
+  if (await handleVouchInteraction(interaction)) return;
   if (await handleTicketInteraction(interaction)) return;
   if (!interaction.isChatInputCommand() || interaction.commandName !== "testwelcome") return;
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
