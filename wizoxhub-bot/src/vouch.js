@@ -39,10 +39,10 @@ function siteUrl() {
   return VOUCH_SITE.startsWith("http") ? VOUCH_SITE : `https://${VOUCH_SITE}`;
 }
 
-function vouchEmbed({ title, text, rating }, user) {
+function vouchEmbed({ title, text, rating }, user, postedBy) {
   const lines = [text];
   if (rating) lines.push("", `**Rating:** ${rating}/10`);
-  lines.push(`-# by ${user}`);
+  lines.push(postedBy ? `-# by ${user} · posted by ${postedBy}` : `-# by ${user}`);
 
   const embed = new EmbedBuilder().setColor(RED).setTitle(title).setDescription(lines.join("\n"));
   const url = siteUrl();
@@ -61,7 +61,10 @@ function parseRating(raw) {
 }
 
 export const vouchCommands = [
-  new SlashCommandBuilder().setName("vouch").setDescription("Leave a review / vouch."),
+  new SlashCommandBuilder()
+    .setName("vouch")
+    .setDescription("Leave a review / vouch.")
+    .addUserOption((o) => o.setName("for").setDescription("(Staff) Post a vouch on behalf of a buyer.").setRequired(false)),
   new SlashCommandBuilder().setName("vouchstats").setDescription("See how many vouches there are and the average rating."),
   new SlashCommandBuilder()
     .setName("removevouch")
@@ -70,14 +73,14 @@ export const vouchCommands = [
     .addUserOption((o) => o.setName("user").setDescription("Whose vouches to delete.").setRequired(true)),
 ];
 
-function vouchModal() {
+function vouchModal(forId) {
   const input = (id, label, style, opts = {}) =>
     new ActionRowBuilder().addComponents(
       new TextInputBuilder().setCustomId(id).setLabel(label).setStyle(style).setRequired(opts.required ?? true)
         .setMaxLength(opts.max ?? 4000).setPlaceholder(opts.placeholder ?? ""),
     );
   return new ModalBuilder()
-    .setCustomId("vouch:modal")
+    .setCustomId(forId ? `vouch:modal:${forId}` : "vouch:modal")
     .setTitle("Leave a vouch")
     .addComponents(
       input("title", "Title", TextInputStyle.Short, { max: 100, placeholder: "Pretty good" }),
@@ -87,7 +90,7 @@ function vouchModal() {
 }
 
 export async function handleVouchInteraction(interaction) {
-  if (interaction.isModalSubmit() && interaction.customId === "vouch:modal") {
+  if (interaction.isModalSubmit() && interaction.customId.startsWith("vouch:modal")) {
     await submitVouch(interaction);
     return true;
   }
@@ -98,7 +101,14 @@ export async function handleVouchInteraction(interaction) {
       if (!VOUCH_CHANNEL_ID) {
         await interaction.reply({ content: "Vouches aren't set up yet: add VOUCH_CHANNEL_ID to the bot's .env.", flags: MessageFlags.Ephemeral });
       } else {
-        await interaction.showModal(vouchModal());
+        const buyer = interaction.options.getUser("for");
+        if (buyer && !isStaff(interaction)) {
+          await interaction.reply({ content: "Only staff can post vouches for other people.", flags: MessageFlags.Ephemeral });
+        } else if (buyer?.bot) {
+          await interaction.reply({ content: "You can't post a vouch for a bot.", flags: MessageFlags.Ephemeral });
+        } else {
+          await interaction.showModal(vouchModal(buyer?.id));
+        }
       }
       return true;
     case "vouchstats":
@@ -112,8 +122,20 @@ export async function handleVouchInteraction(interaction) {
   }
 }
 
+function isStaff(interaction) {
+  return interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild);
+}
+
 async function submitVouch(interaction) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const forId = interaction.customId.split(":")[2];
+  if (forId && !isStaff(interaction)) {
+    await interaction.editReply("Only staff can post vouches for other people.");
+    return;
+  }
+  const author = forId ? await interaction.client.users.fetch(forId) : interaction.user;
+  const postedBy = forId ? interaction.user : null;
 
   const title = interaction.fields.getTextInputValue("title").trim();
   const text = interaction.fields.getTextInputValue("text").trim();
@@ -130,13 +152,13 @@ async function submitVouch(interaction) {
   }
 
   const vouch = { title, text, rating };
-  const msg = await channel.send({ embeds: [vouchEmbed(vouch, interaction.user)], allowedMentions: { parse: [] } });
+  const msg = await channel.send({ embeds: [vouchEmbed(vouch, author, postedBy)], allowedMentions: { parse: [] } });
 
   const list = load();
-  list.push({ from: interaction.user.id, ...vouch, at: Date.now(), channelId: channel.id, messageId: msg.id });
+  list.push({ from: author.id, ...(postedBy && { postedBy: postedBy.id }), ...vouch, at: Date.now(), channelId: channel.id, messageId: msg.id });
   save(list);
 
-  await interaction.editReply(`Thanks! Your vouch was posted in ${channel}.`);
+  await interaction.editReply(forId ? `Posted ${author.username}'s vouch in ${channel}.` : `Thanks! Your vouch was posted in ${channel}.`);
 }
 
 async function vouchStats(interaction) {
