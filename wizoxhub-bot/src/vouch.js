@@ -34,9 +34,16 @@ function save(list) {
   writeFileSync(DATA_FILE, JSON.stringify(list, null, 2));
 }
 
+const SITE = VOUCH_SITE?.trim();
+
+// Only a real web address can be a link; anything else (e.g. "Wizox Hub") is just footer text.
 function siteUrl() {
-  if (!VOUCH_SITE) return null;
-  return VOUCH_SITE.startsWith("http") ? VOUCH_SITE : `https://${VOUCH_SITE}`;
+  if (!SITE || /\s/.test(SITE) || !SITE.includes(".")) return null;
+  try {
+    return new URL(SITE.startsWith("http") ? SITE : `https://${SITE}`).href;
+  } catch {
+    return null;
+  }
 }
 
 function vouchEmbed({ title, text, rating }, user) {
@@ -46,10 +53,8 @@ function vouchEmbed({ title, text, rating }, user) {
 
   const embed = new EmbedBuilder().setColor(RED).setTitle(title).setDescription(lines.join("\n"));
   const url = siteUrl();
-  if (url) {
-    // A title with a link shows up blue, like in the screenshot.
-    embed.setURL(url).setFooter({ text: `Review at ${VOUCH_SITE.replace(/^https?:\/\//, "")}` });
-  }
+  if (url) embed.setURL(url);
+  if (SITE) embed.setFooter({ text: `Review at ${SITE.replace(/^https?:\/\//, "")}`.slice(0, 2048) });
   return embed;
 }
 

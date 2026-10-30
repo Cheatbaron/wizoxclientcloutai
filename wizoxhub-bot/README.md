@@ -84,6 +84,6 @@ Staff (Manage Server) can post a vouch for a buyer with `/vouch for:@buyer`. The
 Add to `.env`:
 
 - `VOUCH_CHANNEL_ID` – the channel the vouches get posted in
-- `VOUCH_SITE` – optional, your website (e.g. `example.com`). Shows "Review at example.com" under each vouch.
+- `VOUCH_SITE` – optional, shown as "Review at …" under each vouch. If it is a web address (e.g. `example.com`) the title also links to it.
 
 Vouches are saved in `data/vouches.json`. On Railway, add a Volume mounted at the bot's `data` folder or they reset on every redeploy.
