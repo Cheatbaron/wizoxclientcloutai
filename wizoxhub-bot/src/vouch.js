@@ -91,7 +91,15 @@ function vouchModal(forId) {
 
 export async function handleVouchInteraction(interaction) {
   if (interaction.isModalSubmit() && interaction.customId.startsWith("vouch:modal")) {
-    await submitVouch(interaction);
+    try {
+      await submitVouch(interaction);
+    } catch (e) {
+      console.error("Vouch failed:", e);
+      const hint = e.code === 50013 || e.code === 50001
+        ? "I'm not allowed to post in the vouch channel. Give the bot **View Channel**, **Send Messages** and **Embed Links** there."
+        : `Something went wrong: ${e.message}`;
+      await interaction.editReply(hint).catch(() => {});
+    }
     return true;
   }
   if (!interaction.isChatInputCommand()) return false;
