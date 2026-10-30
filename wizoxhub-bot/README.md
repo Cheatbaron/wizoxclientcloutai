@@ -71,3 +71,17 @@ accept the rules first, they get it right after accepting.
 
 For this to work the bot needs **Manage Roles**, and in **Server Settings → Roles** the bot's role must be
 dragged **above** the Members role.
+
+## Vouches
+
+`/vouch` opens a form (title, review, rating out of 10). The bot then posts it as a review card in your vouch channel.
+
+- `/vouchstats` – total vouches and average rating
+- `/removevouch @user` – admins only, deletes that user's vouches (and their messages)
+
+Add to `.env`:
+
+- `VOUCH_CHANNEL_ID` – the channel the vouches get posted in
+- `VOUCH_SITE` – optional, your website (e.g. `example.com`). Shows "Review at example.com" under each vouch.
+
+Vouches are saved in `data/vouches.json`. On Railway, add a Volume mounted at the bot's `data` folder or they reset on every redeploy.

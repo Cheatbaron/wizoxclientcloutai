@@ -1,240 +1,170 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { resolve, dirname } from "path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import {
+  ActionRowBuilder,
   EmbedBuilder,
-  SlashCommandBuilder,
+  MessageFlags,
+  ModalBuilder,
   PermissionFlagsBits,
+  SlashCommandBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
+
+const { VOUCH_CHANNEL_ID, VOUCH_SITE } = process.env;
+const BLUE = 0x5865f2;
 
 const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../data");
 const DATA_FILE = resolve(DATA_DIR, "vouches.json");
 
-// { [targetId]: [{ from, reason, at }] }
+// [{ from, title, text, rating, at, channelId, messageId }]
 function load() {
-  if (!existsSync(DATA_FILE)) return {};
-  try { return JSON.parse(readFileSync(DATA_FILE, "utf8")); }
-  catch { return {}; }
+  if (!existsSync(DATA_FILE)) return [];
+  try {
+    const data = JSON.parse(readFileSync(DATA_FILE, "utf8"));
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
 }
 
-function save(data) {
+function save(list) {
   mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  writeFileSync(DATA_FILE, JSON.stringify(list, null, 2));
 }
 
-function getVouches(data, targetId) {
-  return data[targetId] ?? [];
+function siteUrl() {
+  if (!VOUCH_SITE) return null;
+  return VOUCH_SITE.startsWith("http") ? VOUCH_SITE : `https://${VOUCH_SITE}`;
 }
 
-function countVouches(data, targetId) {
-  return getVouches(data, targetId).length;
+function vouchEmbed({ title, text, rating }, user) {
+  const lines = [text];
+  if (rating) lines.push("", `**Rating:** ${rating}/10`);
+  lines.push(`-# by ${user}`);
+
+  const embed = new EmbedBuilder().setColor(BLUE).setTitle(title).setDescription(lines.join("\n"));
+  const url = siteUrl();
+  if (url) {
+    // A title with a link shows up blue, like in the screenshot.
+    embed.setURL(url).setFooter({ text: `Review at ${VOUCH_SITE.replace(/^https?:\/\//, "")}` });
+  }
+  return embed;
 }
 
-// ─── Slash commands ───────────────────────────────────────────
+function parseRating(raw) {
+  if (!raw?.trim()) return null;
+  const n = Number(raw.trim().replace(",", ".").replace(/\/10$/, ""));
+  if (!Number.isFinite(n) || n < 0 || n > 10) return undefined;
+  return Math.round(n * 10) / 10;
+}
 
 export const vouchCommands = [
-  new SlashCommandBuilder()
-    .setName("vouch")
-    .setDescription("Vouch for a member of the server.")
-    .addUserOption((o) => o.setName("user").setDescription("Who are you vouching for?").setRequired(true))
-    .addStringOption((o) => o.setName("reason").setDescription("Why are you vouching for them?").setRequired(false).setMaxLength(200)),
-
-  new SlashCommandBuilder()
-    .setName("vouches")
-    .setDescription("Check how many vouches a user has.")
-    .addUserOption((o) => o.setName("user").setDescription("Whose vouches to check (defaults to you).").setRequired(false)),
-
-  new SlashCommandBuilder()
-    .setName("vouchleaderboard")
-    .setDescription("Show the top vouched members in the server."),
-
+  new SlashCommandBuilder().setName("vouch").setDescription("Leave a review / vouch."),
+  new SlashCommandBuilder().setName("vouchstats").setDescription("See how many vouches there are and the average rating."),
   new SlashCommandBuilder()
     .setName("removevouch")
-    .setDescription("(Admin) Remove a specific vouch from a user.")
+    .setDescription("(Admin) Delete every vouch from a user.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-    .addUserOption((o) => o.setName("user").setDescription("User to remove a vouch from.").setRequired(true))
-    .addUserOption((o) => o.setName("voucher").setDescription("Who gave the vouch to remove.").setRequired(true)),
-
-  new SlashCommandBuilder()
-    .setName("clearvouches")
-    .setDescription("(Admin) Clear all vouches for a user.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-    .addUserOption((o) => o.setName("user").setDescription("User to clear vouches for.").setRequired(true)),
+    .addUserOption((o) => o.setName("user").setDescription("Whose vouches to delete.").setRequired(true)),
 ];
 
-// ─── Interaction handler ─────────────────────────────────────
-
-export async function handleVouchInteraction(interaction) {
-  if (!interaction.isChatInputCommand()) return false;
-  const { commandName } = interaction;
-  if (!["vouch", "vouches", "vouchleaderboard", "removevouch", "clearvouches"].includes(commandName)) return false;
-
-  await interaction.deferReply();
-
-  const data = load();
-
-  // ── /vouch ──────────────────────────────────────────────────
-  if (commandName === "vouch") {
-    const target = interaction.options.getUser("user");
-    const reason = interaction.options.getString("reason") ?? "Ingen grunn oppgitt";
-    const from = interaction.user;
-
-    if (target.id === from.id) {
-      await interaction.editReply({ embeds: [errEmbed("Du kan ikke vouche deg selv!")] });
-      return true;
-    }
-    if (target.bot) {
-      await interaction.editReply({ embeds: [errEmbed("Du kan ikke vouche bots.")] });
-      return true;
-    }
-
-    if (!data[target.id]) data[target.id] = [];
-    const existing = data[target.id].findIndex((v) => v.from === from.id);
-
-    if (existing !== -1) {
-      // update existing vouch
-      data[target.id][existing] = { from: from.id, reason, at: Date.now() };
-      save(data);
-      const total = countVouches(data, target.id);
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(0xf4b400)
-            .setTitle("✏️ Vouch oppdatert")
-            .setDescription(`Du oppdaterte vouchen din for ${target}.\n\n**Ny grunn:** ${reason}`)
-            .setFooter({ text: `${target.username} har nå ${total} vouch${total === 1 ? "" : "s"} totalt.` })
-            .setTimestamp(),
-        ],
-      });
-    } else {
-      data[target.id].push({ from: from.id, reason, at: Date.now() });
-      save(data);
-      const total = countVouches(data, target.id);
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(0x2a9d8f)
-            .setTitle("✅ Vouch registrert!")
-            .setThumbnail(target.displayAvatarURL({ size: 128 }))
-            .setDescription(`${from} voucher for ${target}!\n\n**Grunn:** ${reason}`)
-            .setFooter({ text: `${target.username} har nå ${total} vouch${total === 1 ? "" : "s"} totalt.` })
-            .setTimestamp(),
-        ],
-      });
-    }
-    return true;
-  }
-
-  // ── /vouches ─────────────────────────────────────────────────
-  if (commandName === "vouches") {
-    const target = interaction.options.getUser("user") ?? interaction.user;
-    const list = getVouches(data, target.id);
-    const total = list.length;
-
-    if (total === 0) {
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(0x8a84a8)
-            .setTitle(`${target.username} – Vouches`)
-            .setThumbnail(target.displayAvatarURL({ size: 128 }))
-            .setDescription("Ingen vouches ennå."),
-        ],
-      });
-      return true;
-    }
-
-    // newest first, show last 10
-    const recent = [...list].sort((a, b) => b.at - a.at).slice(0, 10);
-    const lines = recent.map((v) => `• <@${v.from}> – *${v.reason}*`).join("\n");
-
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0x3a6ea5)
-          .setTitle(`${target.username} – ${total} vouch${total === 1 ? "" : "s"}`)
-          .setThumbnail(target.displayAvatarURL({ size: 128 }))
-          .setDescription(lines + (total > 10 ? `\n-# … og ${total - 10} til.` : ""))
-          .setTimestamp(),
-      ],
-    });
-    return true;
-  }
-
-  // ── /vouchleaderboard ────────────────────────────────────────
-  if (commandName === "vouchleaderboard") {
-    const entries = Object.entries(data)
-      .map(([id, list]) => ({ id, count: list.length }))
-      .filter((e) => e.count > 0)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-
-    if (entries.length === 0) {
-      await interaction.editReply({ embeds: [new EmbedBuilder().setColor(0x8a84a8).setDescription("Ingen vouches ennå på serveren.")] });
-      return true;
-    }
-
-    const medals = ["🥇", "🥈", "🥉"];
-    const lines = entries.map((e, i) => `${medals[i] ?? `**${i + 1}.**`} <@${e.id}> — **${e.count}** vouch${e.count === 1 ? "" : "s"}`).join("\n");
-
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0xf4b400)
-          .setTitle("🏆 Vouch-leaderboard")
-          .setDescription(lines)
-          .setTimestamp(),
-      ],
-    });
-    return true;
-  }
-
-  // ── /removevouch (admin) ─────────────────────────────────────
-  if (commandName === "removevouch") {
-    const target = interaction.options.getUser("user");
-    const voucher = interaction.options.getUser("voucher");
-
-    if (!data[target.id]) {
-      await interaction.editReply({ embeds: [errEmbed(`${target.username} har ingen vouches.`)] });
-      return true;
-    }
-    const before = data[target.id].length;
-    data[target.id] = data[target.id].filter((v) => v.from !== voucher.id);
-    const removed = before - data[target.id].length;
-    if (removed === 0) {
-      await interaction.editReply({ embeds: [errEmbed(`${voucher.username} har ikke voucha ${target.username}.`)] });
-      return true;
-    }
-    save(data);
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0xe63946)
-          .setDescription(`Fjernet ${voucher.username}s vouch for ${target.username}. De har nå **${data[target.id].length}** vouches.`),
-      ],
-    });
-    return true;
-  }
-
-  // ── /clearvouches (admin) ────────────────────────────────────
-  if (commandName === "clearvouches") {
-    const target = interaction.options.getUser("user");
-    const count = countVouches(data, target.id);
-    delete data[target.id];
-    save(data);
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0xe63946)
-          .setDescription(`Slettet alle **${count}** vouches for ${target.username}.`),
-      ],
-    });
-    return true;
-  }
-
-  return false;
+function vouchModal() {
+  const input = (id, label, style, opts = {}) =>
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder().setCustomId(id).setLabel(label).setStyle(style).setRequired(opts.required ?? true)
+        .setMaxLength(opts.max ?? 4000).setPlaceholder(opts.placeholder ?? ""),
+    );
+  return new ModalBuilder()
+    .setCustomId("vouch:modal")
+    .setTitle("Leave a vouch")
+    .addComponents(
+      input("title", "Title", TextInputStyle.Short, { max: 100, placeholder: "Pretty good" }),
+      input("text", "Your review", TextInputStyle.Paragraph, { max: 1500, placeholder: "What did you like? What could be better?" }),
+      input("rating", "Rating out of 10 (optional)", TextInputStyle.Short, { required: false, max: 4, placeholder: "7.5" }),
+    );
 }
 
-function errEmbed(msg) {
-  return new EmbedBuilder().setColor(0xe63946).setDescription(`❌ ${msg}`);
+export async function handleVouchInteraction(interaction) {
+  if (interaction.isModalSubmit() && interaction.customId === "vouch:modal") {
+    await submitVouch(interaction);
+    return true;
+  }
+  if (!interaction.isChatInputCommand()) return false;
+
+  switch (interaction.commandName) {
+    case "vouch":
+      if (!VOUCH_CHANNEL_ID) {
+        await interaction.reply({ content: "Vouches aren't set up yet: add VOUCH_CHANNEL_ID to the bot's .env.", flags: MessageFlags.Ephemeral });
+      } else {
+        await interaction.showModal(vouchModal());
+      }
+      return true;
+    case "vouchstats":
+      await vouchStats(interaction);
+      return true;
+    case "removevouch":
+      await removeVouches(interaction);
+      return true;
+    default:
+      return false;
+  }
+}
+
+async function submitVouch(interaction) {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const title = interaction.fields.getTextInputValue("title").trim();
+  const text = interaction.fields.getTextInputValue("text").trim();
+  const rating = parseRating(interaction.fields.getTextInputValue("rating"));
+  if (rating === undefined) {
+    await interaction.editReply("The rating has to be a number from 0 to 10, like `8` or `7.5`.");
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(VOUCH_CHANNEL_ID).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.editReply("I couldn't find the vouch channel. Ask an admin to check VOUCH_CHANNEL_ID.");
+    return;
+  }
+
+  const vouch = { title, text, rating };
+  const msg = await channel.send({ embeds: [vouchEmbed(vouch, interaction.user)], allowedMentions: { parse: [] } });
+
+  const list = load();
+  list.push({ from: interaction.user.id, ...vouch, at: Date.now(), channelId: channel.id, messageId: msg.id });
+  save(list);
+
+  await interaction.editReply(`Thanks! Your vouch was posted in ${channel}.`);
+}
+
+async function vouchStats(interaction) {
+  const list = load();
+  const rated = list.filter((v) => typeof v.rating === "number");
+  const avg = rated.length ? (rated.reduce((s, v) => s + v.rating, 0) / rated.length).toFixed(1) : null;
+
+  const embed = new EmbedBuilder()
+    .setColor(BLUE)
+    .setTitle("Vouches")
+    .setDescription(
+      list.length
+        ? `**${list.length}** vouch${list.length === 1 ? "" : "es"} total` + (avg ? `\nAverage rating: **${avg}/10**` : "")
+        : "No vouches yet. Be the first with `/vouch`!",
+    );
+  await interaction.reply({ embeds: [embed] });
+}
+
+async function removeVouches(interaction) {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const user = interaction.options.getUser("user");
+  const list = load();
+  const theirs = list.filter((v) => v.from === user.id);
+
+  for (const v of theirs) {
+    const channel = await interaction.guild.channels.fetch(v.channelId).catch(() => null);
+    await channel?.messages.delete(v.messageId).catch(() => {});
+  }
+  save(list.filter((v) => v.from !== user.id));
+  await interaction.editReply(`Deleted ${theirs.length} vouch${theirs.length === 1 ? "" : "es"} from ${user.username}.`);
 }
